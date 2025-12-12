@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - WineX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #7e1c2f;
+            --primary-light: #9d4354;
+            --secondary: #2c3e50;
+            --accent: #e94560;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+            --transition: all 0.3s ease;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f9f6f2 0%, #f5f0eb 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(126, 28, 47, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+            position: relative;
+        }
+
+        .spinner::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 4px solid transparent;
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: rotate 2s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        /* Card Animations */
+        .card {
+            animation: slideInUp 0.6s var(--card-delay) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(126, 28, 47, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: rgba(126, 28, 47, 0.2);
+        }
+
+        .card:nth-child(1) { --card-delay: 0.3s; }
+        .card:nth-child(2) { --card-delay: 0.4s; }
+        .card:nth-child(3) { --card-delay: 0.5s; }
+        .card:nth-child(4) { --card-delay: 0.6s; }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            font-weight: 600;
+            border: none;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            position: sticky;
+            top: 20px;
+            animation: slideInUp 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        /* Payment Options */
+        .payment-option {
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-option:hover {
+            transform: translateX(10px);
+            border-color: var(--primary-light);
+            box-shadow: 0 10px 25px rgba(126, 28, 47, 0.1);
+        }
+
+        .payment-option.selected {
+            border-color: var(--primary);
+            background: rgba(126, 28, 47, 0.08);
+            box-shadow: 0 15px 30px rgba(126, 28, 47, 0.15);
+        }
+
+        .payment-option.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Checkout Button */
+        .checkout-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(126, 28, 47, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(126, 28, 47, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .checkout-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .checkout-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(126, 28, 47, 0.3);
+            }
+            50% {
+                box-shadow: 0 15px 35px rgba(126, 28, 47, 0.6);
+            }
+        }
+
+        /* Continue Shopping Button */
+        .continue-shopping-btn {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.4s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+        }
+
+        .continue-shopping-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(44, 62, 80, 0.4);
+        }
+
+        .continue-shopping-btn i {
+            transition: transform 0.4s;
+        }
+
+        .continue-shopping-btn:hover i {
+            transform: translateX(-5px);
+        }
+
+        /* Form Input Animations */
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 14px;
+            transition: all 0.4s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(126, 28, 47, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Toast Notifications */
+        .toast-container-custom {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast-custom {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            animation: slideInRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 5px solid #dc3545;
+            max-width: 400px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .toast-custom.success {
+            border-left-color: #28a745;
+        }
+
+        .toast-custom.warning {
+            border-left-color: #ffc107;
+        }
+
+        .toast-custom.info {
+            border-left-color: #2196f3;
+        }
+
+        .toast-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .toast-custom.error .toast-icon {
+            color: #dc3545;
+        }
+
+        .toast-custom.success .toast-icon {
+            color: #28a745;
+        }
+
+        .toast-custom.warning .toast-icon {
+            color: #ffc107;
+        }
+
+        .toast-custom.info .toast-icon {
+            color: #2196f3;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 17px;
+        }
+
+        .toast-message {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toast-close:hover {
+            background-color: rgba(126, 28, 47, 0.1);
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-custom.hiding {
+            animation: slideOutRight 0.5s ease-in forwards;
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Empty Cart Animation */
+        .empty-cart-container {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1s ease;
+        }
+
+        .empty-cart-icon {
+            font-size: 120px;
+            color: var(--primary);
+            margin-bottom: 30px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Loading Modal */
+        .loading-modal {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-modal .modal-content {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .payment-option {
+                padding: 15px;
+            }
+            
+            .checkout-btn {
+                padding: 16px 24px;
+                font-size: 16px;
+            }
+            
+            .summary-card {
+                position: static;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-5 fw-bold" style="color: var(--primary);">
+                <i class="bi bi-credit-card me-3"></i>Checkout
+            </h1>
+            <a href="{% url 'shop_home' %}" class="continue-shopping-btn">
+                <i class="bi bi-arrow-left"></i>
+                Continue Shopping
+            </a>
+        </div>
+
+        <!-- ===================== CART CHECK ===================== -->
+        {% if cart_items %}
+
+        <!-- ===================== IF CART HAS ITEMS — SHOW CHECKOUT ===================== -->
+        <div class="row">
+            <!-- LEFT SIDE -->
+            <div class="col-lg-8">
+                <!-- ORDER ITEMS CARD -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-bag me-2"></i> Order Items</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                        <div class="row align-items-center mb-4 pb-3 border-bottom">
+                            <div class="col-md-2">
+                                {% if item.product %}
+                                    <img src="{{ item.product.image.url }}" 
+                                         class="img-fluid rounded" 
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                {% elif item.combo %}
+                                    <img src="{{ item.combo.image.url }}" 
+                                         class="img-fluid rounded" 
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                {% elif item.offer %}
+                                    {% if item.offer.image %}
+                                        <img src="{{ item.offer.image.url }}" 
+                                             class="img-fluid rounded" 
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px; background: #f8f1f1;">
+                                            <i class="bi bi-tag fs-4" style="color: var(--primary);"></i>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-5">
+                                <h6 class="fw-bold mb-1">
+                                    {% if item.product %} 
+                                        {{ item.product.name }}
+                                    {% elif item.combo %} 
+                                        {{ item.combo.name }} 
+                                        <span class="badge bg-warning ms-1">Combo</span>
+                                    {% elif item.offer %} 
+                                        {{ item.offer.title }} 
+                                        <span class="badge bg-success ms-1">Offer</span>
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                            </div>
+
+                            <div class="col-md-5 text-end">
+                                <strong class="fs-5" style="color: var(--primary);">
+                                    ₹{{ item.get_total_price }}
+                                </strong>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- CONTACT INFORMATION CARD -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person me-2"></i> Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone Number *</label>
+                            <input type="tel" 
+                                   id="phone_number" 
+                                   class="form-control" 
+                                   placeholder="Enter 10-digit phone number"
+                                   value="{% if request.user.is_authenticated and request.user.phone_number %}{{ request.user.phone_number }}{% endif %}"
+                                   required>
+                            <div class="form-text">We'll send order updates to this number</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORDER TYPE CARD -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-truck me-2"></i> Order Type</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="order_type" 
+                                   id="delivery" 
+                                   value="delivery" 
+                                   checked>
+                            <label class="form-check-label fw-bold" for="delivery">
+                                <i class="bi bi-house-door me-2"></i> Home Delivery
+                            </label>
+                            <div class="form-text ps-4">Get your order delivered to your doorstep</div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="order_type" 
+                                   id="pickup" 
+                                   value="pickup">
+                            <label class="form-check-label fw-bold" for="pickup">
+                                <i class="bi bi-shop me-2"></i> Pickup from Store
+                            </label>
+                            <div class="form-text ps-4">Collect your order from our nearest store</div>
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div id="delivery_address_box">
+                            <div class="mt-3">
+                                <label class="form-label fw-bold">Delivery Address *</label>
+                                <textarea id="delivery_address" 
+                                          class="form-control" 
+                                          placeholder="Enter your complete address with landmark"
+                                          rows="3"></textarea>
+                                <div class="form-text">Please provide detailed address for accurate delivery</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAYMENT METHOD CARD -->
+                <div class="card mb-4" id="payment_card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i> Payment Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="payment-options">
+                            <div class="payment-option selected" data-method="card">
+                                <i class="bi bi-credit-card-2-front me-3 fs-4"></i>
+                                <div>
+                                    <strong>Credit / Debit Card</strong>
+                                    <div class="form-text">Pay securely with your card</div>
+                                </div>
+                            </div>
+
+                            <div class="payment-option" data-method="upi">
+                                <i class="bi bi-phone me-3 fs-4"></i>
+                                <div>
+                                    <strong>UPI Payment</strong>
+                                    <div class="form-text">Pay using UPI apps</div>
+                                </div>
+                            </div>
+
+                            <div class="payment-option" id="cod_option" data-method="cod">
+                                <i class="bi bi-cash-coin me-3 fs-4"></i>
+                                <div>
+                                    <strong>Cash on Delivery</strong>
+                                    <div class="form-text">Pay when you receive your order</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY COLUMN -->
+            <div class="col-lg-4">
+                <div class="card summary-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-receipt me-2"></i> Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="fw-bold">₹{{ subtotal }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">GST (5%):</span>
+                            <span class="fw-bold">₹{{ tax }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Service Fee:</span>
+                            <span class="fw-bold">₹{{ service_fee }}</span>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fs-5 fw-bold">Total Amount:</span>
+                            <span class="fs-5 fw-bold" style="color: var(--primary);">
+                                ₹{{ total }}
+                            </span>
+                        </div>
+
+                        <!-- Place Order Button -->
+                        <button id="place-order-btn" class="checkout-btn mb-3">
+                            <i class="bi bi-lock-fill"></i>
+                            Place Order – ₹{{ total }}
+                        </button>
+
+                        <!-- Security Info -->
+                        <div class="text-center">
+                            <p class="text-muted small mb-0">
+                                <i class="bi bi-shield-check"></i>
+                                100% Secure Payment · SSL Encrypted
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================== END IF CART ITEMS ====================== -->
+
+        {% else %}
+        <!-- ====================== EMPTY CART SCREEN ====================== -->
+        <div class="empty-cart-container">
+            <div class="text-center">
+                <div class="empty-cart-icon">
+                    <i class="bi bi-cart-x"></i>
+                </div>
+                <h2 class="mb-3" style="color: var(--primary);">Your Cart is Empty</h2>
+                <p class="text-muted mb-4">Add some items to your cart to proceed with checkout.</p>
+                <a href="{% url 'shop_home' %}" class="checkout-btn" style="width: auto; padding: 14px 40px;">
+                    <i class="bi bi-shop"></i>
+                    Browse Products
+                </a>
+            </div>
+        </div>
+        <!-- ====================== EMPTY CART END ====================== -->
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap Modal for Loading -->
+    <div class="modal fade loading-modal" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-5">
+                    <div class="spinner"></div>
+                    <h5 class="mt-4 text-white">Processing Your Order...</h5>
+                    <p class="text-white-50">Please wait while we complete your purchase</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        // Loading functions
+        function showLoading() {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'flex';
+            spinner.animate([
+                { opacity: 0 },
+                { opacity: 1 }
+            ], {
+                duration: 300,
+                easing: 'ease-in-out'
+            });
+            
+            // Also show modal for longer operations
+            const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            modal.show();
+        }
+
+        function hideLoading() {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.animate([
+                { opacity: 1 },
+                { opacity: 0 }
+            ], {
+                duration: 300,
+                easing: 'ease-in-out'
+            }).onfinish = () => {
+                spinner.style.display = 'none';
+            };
+            
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+            if (modal) modal.hide();
+        }
+
+        // Toast Notification Functions
+        function showToast(message, type = 'info', title = null) {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-custom ${type}`;
+            
+            // Set icon based on type
+            let icon = 'info-circle';
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    title = title || 'Success';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    title = title || 'Error';
+                    break;
+                case 'warning':
+                    icon = 'exclamation-triangle';
+                    title = title || 'Warning';
+                    break;
+                default:
+                    icon = 'info-circle';
+                    title = title || 'Info';
+            }
+            
+            toast.innerHTML = `
+                <i class="toast-icon fas fa-${icon}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="removeToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    removeToast(toast.querySelector('.toast-close'));
+                }
+            }, 5000);
+            
+            return toast;
+        }
+        
+        function removeToast(closeButton) {
+            const toast = closeButton.closest('.toast-custom');
+            if (toast) {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 500);
+            }
+        }
+
+        // Display Django messages as toasts
+        {% if messages %}
+            {% for message in messages %}
+                setTimeout(() => {
+                    {% if message.tags == 'success' %}
+                        showToast('{{ message|escapejs }}', 'success', 'Success');
+                    {% elif message.tags == 'error' %}
+                        showToast('{{ message|escapejs }}', 'error', 'Error');
+                    {% elif message.tags == 'warning' %}
+                        showToast('{{ message|escapejs }}', 'warning', 'Warning');
+                    {% else %}
+                        showToast('{{ message|escapejs }}', 'info', 'Info');
+                    {% endif %}
+                }, 1000);
+            {% endfor %}
+        {% endif %}
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // =========================
+            // PAYMENT OPTION SELECTION
+            // =========================
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    // Animate selection
+                    document.querySelectorAll('.payment-option').forEach(o => {
+                        o.classList.remove('selected');
+                        o.animate([
+                            { transform: 'scale(1)' },
+                            { transform: 'scale(0.95)' },
+                            { transform: 'scale(1)' }
+                        ], {
+                            duration: 300,
+                            easing: 'ease-in-out'
+                        });
+                    });
+                    
+                    this.classList.add('selected');
+                    
+                    // Add bounce animation to selected option
+                    this.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.05)' },
+                        { transform: 'scale(1)' }
+                    ], {
+                        duration: 300,
+                        easing: 'ease-in-out'
+                    });
+                });
+            });
+
+            // =========================
+            // DELIVERY / PICKUP CHANGE
+            // =========================
+            document.querySelectorAll("input[name='order_type']").forEach(option => {
+                option.addEventListener("change", function () {
+                    const addressBox = document.getElementById("delivery_address_box");
+                    const codOption = document.getElementById("cod_option");
+                    const paymentCard = document.getElementById("payment_card");
+
+                    // Animate the change
+                    [addressBox, codOption, paymentCard].forEach(el => {
+                        if (el) {
+                            el.animate([
+                                { opacity: 1 },
+                                { opacity: 0 },
+                                { opacity: 1 }
+                            ], {
+                                duration: 300,
+                                easing: 'ease-in-out'
+                            });
+                        }
+                    });
+
+                    if (this.value === "delivery") {
+                        addressBox.style.display = "block";
+                        paymentCard.style.display = "block";
+                        codOption.style.display = "block";
+                    }
+                    else if (this.value === "pickup") {
+                        addressBox.style.display = "none";
+                        codOption.style.display = "none";
+                        paymentCard.style.display = "block";
+                    }
+                });
+            });
+
+            // =========================
+            // PLACE ORDER BUTTON
+            // =========================
+            document.getElementById("place-order-btn").addEventListener("click", async function () {
+                // Disable button and show loading
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                showLoading();
+
+                const phone_number = document.getElementById("phone_number").value.trim();
+                const order_type = document.querySelector("input[name='order_type']:checked").value;
+                const payment_method = document.querySelector(".payment-option.selected").getAttribute("data-method");
+
+                // Validate phone
+                if (!phone_number) {
+                    hideLoading();
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                    showToast("Please enter your phone number to continue.", "error", "Validation Error");
+                    document.getElementById("phone_number").focus();
+                    document.getElementById("phone_number").animate([
+                        { transform: 'translateX(0)' },
+                        { transform: 'translateX(10px)' },
+                        { transform: 'translateX(-10px)' },
+                        { transform: 'translateX(0)' }
+                    ], {
+                        duration: 300,
+                        easing: 'ease-in-out'
+                    });
+                    return;
+                }
+                
+                if (phone_number.length < 10 || !/^\d+$/.test(phone_number)) {
+                    hideLoading();
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                    showToast("Please enter a valid 10-digit phone number.", "error", "Validation Error");
+                    document.getElementById("phone_number").focus();
+                    return;
+                }
+
+                // If delivery, check address
+                let delivery_address = "";
+                if (order_type === "delivery") {
+                    delivery_address = document.getElementById("delivery_address").value.trim();
+                    if (!delivery_address) {
+                        hideLoading();
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                        showToast("Please enter your delivery address.", "error", "Validation Error");
+                        document.getElementById("delivery_address").focus();
+                        return;
+                    }
+                }
+
+                // =========================
+                // IF COD → DIRECT ORDER
+                // =========================
+                if (payment_method === "cod") {
+                    createFinalOrder("cod", "");
+                    return;
+                }
+
+                // =========================
+                // RAZORPAY PAYMENT
+                // =========================
+                const amount = "{{ total }}";
+
+                try {
+                    let rp_order = await fetch("{% url 'create_razorpay_order' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}",
+                        },
+                        body: JSON.stringify({ amount: amount })
+                    }).then(res => res.json());
+
+                    var options = {
+                        "key": rp_order.key,
+                        "amount": rp_order.amount,
+                        "currency": "INR",
+                        "name": "WineX",
+                        "description": "Order Payment",
+                        "order_id": rp_order.order_id,
+                        "handler": function (response) {
+                            createFinalOrder("razorpay", response.razorpay_payment_id);
+                        },
+                        "prefill": {
+                            "name": "{% if request.user.full_name %}{{ request.user.full_name }}{% else %}Customer{% endif %}",
+                            "contact": phone_number
+                        },
+                        "theme": {
+                            "color": "#7e1c2f"
+                        }
+                    };
+
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                    
+                    // Reset button
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                    hideLoading();
+                    
+                } catch (error) {
+                    hideLoading();
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                    showToast("Payment gateway error. Please try again.", "error", "Payment Error");
+                    console.error("Razorpay error:", error);
+                }
+            });
+
+            // =========================
+            // FINAL ORDER CREATION API
+            // =========================
+            async function createFinalOrder(payment_method, payment_id) {
+                const phone_number = document.getElementById("phone_number").value.trim();
+                const order_type = document.querySelector("input[name='order_type']:checked").value;
+                const btn = document.getElementById("place-order-btn");
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Order...';
+
+                let delivery_address = "";
+                if (order_type === "delivery") {
+                    delivery_address = document.getElementById("delivery_address").value.trim();
+                }
+
+                try {
+                    const response = await fetch("{% url 'process_order' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}",
+                        },
+                        body: JSON.stringify({
+                            phone_number: phone_number,
+                            payment_method: payment_method,
+                            payment_id: payment_id,
+                            order_type: order_type,
+                            delivery_address: delivery_address,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showToast("Order placed successfully!", "success", "Order Confirmed");
+                        
+                        // Animate success
+                        document.querySelectorAll('.card').forEach(card => {
+                            card.animate([
+                                { transform: 'scale(1)' },
+                                { transform: 'scale(1.02)' },
+                                { transform: 'scale(1)' }
+                            ], {
+                                duration: 500,
+                                easing: 'ease-in-out'
+                            });
+                        });
+
+                        // Redirect to confirmation page
+                        setTimeout(() => {
+                            window.location.href = "{% url 'order_confirmation' '00000000-0000-0000-0000-000000000000' %}".replace(
+                                '00000000-0000-0000-0000-000000000000',
+                                data.order_id
+                            );
+                        }, 1500);
+                    } else {
+                        hideLoading();
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                        showToast(data.message, "error", "Order Failed");
+                    }
+                } catch (error) {
+                    hideLoading();
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-lock-fill"></i> Place Order – ₹{{ total }}';
+                    showToast("Network error. Please check your connection and try again.", "error", "Network Error");
+                    console.error("Order creation error:", error);
+                }
+            }
+
+            // Show welcome message
+            setTimeout(() => {
+                const lastVisit = localStorage.getItem('lastCheckoutVisit');
+                const today = new Date().toDateString();
+                
+                if (!lastVisit || lastVisit !== today) {
+                    showToast('Complete your order details to proceed with checkout.', 'info', 'Checkout');
+                    localStorage.setItem('lastCheckoutVisit', today);
+                }
+            }, 1000);
+        });
+
+        // Add input animations
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.animate([
+                    { transform: 'scale(1)' },
+                    { transform: 'scale(1.02)' },
+                    { transform: 'scale(1)' }
+                ], {
+                    duration: 300,
+                    easing: 'ease-in-out'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

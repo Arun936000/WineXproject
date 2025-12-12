@@ -1,0 +1,1937 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine X - Premium Wine Experience</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        /* Simple Loading Spinner Styles */
+        #loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-bg) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #loading-spinner.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .wine-pouring-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Make the GIF smaller */
+        .loading-gif {
+            width: 400px; 
+            height: 400px; 
+            object-fit: contain; 
+            animation: gentle-float 3s ease-in-out infinite; 
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Subtle floating animation */
+        @keyframes gentle-float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .loading-gif {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .loading-gif {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        :root {
+            --primary-color: #722f37;
+            --secondary-color: #3d1a1f;
+            --accent-color: #d4a76a;
+            --dark-bg: #2a1301;
+            --light-bg: #f9f5f0;
+            --text-light: #f8f9fa;
+            --text-dark: #2c1810;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            padding-top: 80px; /* Add padding for fixed navbar */
+        }
+
+        /* Navigation - FIXED */
+        .navbar {
+            transition: all 0.3s ease;
+            background: rgba(114, 47, 55, 0.95) !important; /* Changed to primary color */
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(114, 47, 55, 0.98) !important;
+            padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .navbar-nav .nav-link {
+            position: relative;
+            padding: 8px 0;
+            margin: 0 15px;
+            font-weight: 500;
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--accent-color) !important;
+        }
+
+        .navbar-nav .nav-link::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        /* Enable hover for dropdown */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+            animation: dropdownFade 0.25s ease-in-out;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Prevent Bootstrap click conflict */
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        /* Smooth hover feel */
+        .dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            min-width: 220px;
+            max-width: 280px;
+            white-space: normal;
+            overflow-wrap: break-word;
+            transform: translateX(-10px);
+        }
+
+        /* Cart hover preview */
+        #cartDropdown:hover + .dropdown-menu,
+        .dropdown:hover > .dropdown-menu {
+            display: block;
+        }
+
+        /* Smooth animation */
+        .dropdown-menu {
+            animation: dropdownFade 0.25s ease-in-out;
+        }
+
+        /* Dropdown item base style */
+        .dropdown-menu .dropdown-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .dropdown-menu .dropdown-item i {
+            transition: transform 0.25s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--primary-color), #5a2530);
+            color: white !important;
+            transform: translateX(0px);
+            box-shadow: 0 5px 15px rgba(114, 47, 55, 0.4);
+        }
+
+        /* Icon animation on hover */
+        .dropdown-menu .dropdown-item:hover i {
+            transform: scale(1.2);
+            color: #ffd7a0;
+        }
+
+        /* Divider spacing improvement */
+        .dropdown-menu hr {
+            margin: 8px 0;
+            opacity: 0.2;
+            color: #2a1301;
+        }
+
+        /* Logout special red hover */
+        .dropdown-menu .dropdown-item.text-danger:hover {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white !important;
+        }
+
+
+
+        /* Mobile safe fix */
+        @media (max-width: 576px) {
+            .dropdown-menu {
+                right: auto !important;
+                left: 0 !important;
+                transform: none;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .navbar-collapse {
+                background-color: rgba(114, 47, 55, 0.98);
+                padding: 20px;
+                border-radius: 8px;
+                margin-top: 15px;
+            }
+            
+            .navbar-nav .nav-link {
+                margin: 5px 0;
+                padding: 10px 0;
+            }
+        }
+
+        /* Enhanced Hero Section Styles */
+        #home {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-bg) 100%);
+            color: white;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -80px;
+            padding-top: 80px;
+        }
+
+        .hero-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content-wrapper {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            position: relative;
+        }
+
+        .hero-text-content {
+            flex: 1;
+            padding: 0 40px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .hero-visual-content {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            line-height: 1.1;
+        }
+
+        .hero-title .accent-text {
+            color: var(--accent-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title .accent-text::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: underlineGrow 1.5s ease-in-out 1s forwards;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .hero-feature i {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .subscribe-btn {
+            padding: 15px 40px;
+            background: var(--accent-color);
+            color: var(--text-dark);
+            border: none;
+            font-weight: bold;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .subscribe-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .subscribe-btn:hover::before {
+            left: 100%;
+        }
+
+        .subscribe-btn:hover {
+            background: #e0b878;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Wine Bottle Animation */
+        .wine-bottle-container {
+            position: relative;
+            width: 300px;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-bottle {
+            width: 200px;
+            height: 450px;
+            position: relative;
+            z-index: 3;
+            animation: bottleFloat 6s ease-in-out infinite;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+        }
+        .float-1 img{
+          filter: blur(3px); 
+        }
+
+        .wine-pour {
+            position: absolute;
+            top: -50px;
+            width: 80px;
+            height: 200px;
+            background: linear-gradient(to bottom, transparent 10%, var(--primary-color) 50%, transparent 90%);
+            border-radius: 40px;
+            animation: winePour 4s ease-in-out infinite;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .wine-glass {
+            position: absolute;
+            bottom: 50px;
+            width: 120px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px 5px 30px 30px;
+            border: 2px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+            z-index: 4;
+        }
+
+        .wine-in-glass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 0;
+            background: var(--primary-color);
+            border-radius: 0 0 28px 28px;
+            animation: fillGlass 8s ease-in-out infinite;
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            opacity: 0.8;
+            animation: float 15s infinite ease-in-out;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .float-1 {
+            width: 120px;
+            top: 15%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .float-2 {
+            width: 80px;
+            bottom: 20%;
+            right: 8%;
+            animation-delay: 2s;
+        }
+
+        .float-3 {
+            width: 100px;
+            top: 40%;
+            right: 12%;
+            animation-delay: 4s;
+        }
+
+        /* Background Animation */
+        .hero-bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .bg-bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(212, 167, 106, 0.1);
+            animation: bubbleFloat 20s infinite linear;
+        }
+
+        /* Animations */
+        @keyframes bottleFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+            75% {
+                transform: translateY(5px) rotate(-1deg);
+            }
+        }
+
+        @keyframes winePour {
+            0%, 100% {
+                transform: translateY(0) scaleY(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(20px) scaleY(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fillGlass {
+            0%, 100% {
+                height: 0;
+            }
+            50% {
+                height: 80%;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(10px) rotate(-5deg);
+            }
+            75% {
+                transform: translateY(-15px) rotate(3deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        @keyframes underlineGrow {
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes bubbleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0);
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-content-wrapper {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .hero-text-content {
+                padding: 20px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-features {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .wine-bottle-container {
+                margin-top: 30px;
+                height: 400px;
+            }
+
+            .main-bottle {
+                width: 150px;
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .wine-bottle-container {
+                height: 350px;
+            }
+
+            .main-bottle {
+                width: 120px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-features {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .subscribe-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        /* About Section */
+        .about-section {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 50px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 10px;
+            height: 100%;
+            width: 2px;
+            background: rgba(114, 47, 55, 0.2);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .timeline-year {
+            position: absolute;
+            left: -30px;
+            top: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 3px solid var(--primary-color);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-content:hover {
+            transform: translateX(10px);
+        }
+
+        /* Products Section */
+        .products-section {
+            background: linear-gradient(rgba(42, 19, 1, 0.9), rgba(78, 41, 1, 0.9)), url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-image {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .product-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent-color);
+            color: var(--text-dark);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .product-content {
+            padding: 25px;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+
+        /* Subscription Section */
+        .subscription-section {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .subscription-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .subscription-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .subscription-card.featured {
+            border-top: 5px solid var(--accent-color);
+            position: relative;
+            transform: scale(1.05);
+        }
+
+        .subscription-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--primary-color);
+        }
+
+        .subscription-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .subscription-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .subscription-features li:last-child {
+            border-bottom: none;
+        }
+
+        .subscription-features li i {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+
+        /* Events Section */
+        .events-section {
+            background: linear-gradient(rgba(42, 19, 1, 0.9), rgba(78, 41, 1, 0.9)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .event-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .event-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .event-content {
+            padding: 25px;
+        }
+
+        .event-date {
+            background: var(--primary-color);
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+     /* Contact Section */
+      .contact-section {
+        background: linear-gradient(
+          rgba(26, 26, 26, 0.9),
+          rgba(74, 20, 20, 0.9)
+        );
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        min-height: 100vh;
+        padding: 80px 0;
+        color: white;
+      }
+
+      .contact-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/cork-texture.png" %}');
+        opacity: 0.15;
+        z-index: -1;
+      }
+
+      .contact-form-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .contact-form .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        border-radius: 5px;
+      }
+
+      .contact-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+      }
+
+      .contact-form .form-floating label {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+      }
+
+      .info-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 1.2rem;
+      }
+
+      .info-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+      }
+
+      .info-content p {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+      }
+
+      .social-icon:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+      }
+
+      .contact-bottle {
+        position: absolute;
+        width: 150px;
+        bottom: 50px;
+        right: 100px;
+        animation: float 8s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      .contact-glass {
+        position: absolute;
+        width: 80px;
+        top: 100px;
+        right: 200px;
+        animation: float 6s ease-in-out infinite 0.5s;
+        z-index: -1;
+      }
+
+      .floating-wine-element {
+        position: absolute;
+        opacity: 0.1;
+        z-index: 0;
+        animation: float 15s infinite ease-in-out;
+      }
+
+      .float-1 {
+        width: 150px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .float-2 {
+        width: 100px;
+        bottom: 15%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+
+      .float-3 {
+        width: 120px;
+        top: 40%;
+        right: 15%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+        50% {
+          transform: translateY(10px) rotate(-5deg);
+        }
+        75% {
+          transform: translateY(-15px) rotate(3deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 60px 0 20px;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .footer-links h5 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--accent-color);
+            color: var(--text-dark);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-top: 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Color Classes - ADDED */
+        .text-wine-primary { color: var(--primary-color) !important; }
+        .text-wine-accent { color: var(--accent-color) !important; }
+        .btn-wine-primary { 
+            background-color: var(--primary-color) !important; 
+            border-color: var(--primary-color) !important;
+            color: white !important;
+        }
+        .btn-wine-primary:hover { 
+            background-color: #5a2530 !important; 
+            border-color: #5a2530 !important;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .subscription-card.featured {
+                transform: scale(1);
+                margin: 20px 0;
+            }
+            
+            .floating-element {
+                width: 80px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-padding {
+                padding: 60px 0;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .contact-form-container {
+                padding: 25px;
+            }
+            
+            .timeline-year {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .product-image {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .brand-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero-title {
+                font-size: 1.8rem;
+            }
+            
+            .subscribe-btn {
+                padding: 10px 25px;
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .floating-element {
+                width: 60px !important;
+                opacity: 0.5;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Simple Loading Spinner with smaller GIF -->
+    <div id="loading-spinner">
+        <div class="wine-pouring-container">
+            <img src="{% static 'images/project_no_bg.gif' %}" 
+                alt="Wine Loading" 
+                class="loading-gif">
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top w-100 px-4 py-3">
+        <div class="container-fluid">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <h1 class="brand-title text-white m-0">
+                    <span class="text-wine-accent">Wine</span> X
+                </h1>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/shop/' or 'shop' in request.path %}active{% endif %}" href="{% url 'shop_home' %}">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#subscription">Subscription</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#events">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    
+                    <!-- Show Dashboard link only to customers -->
+                    <!-- {% if user.is_authenticated and user.user_type == 'customer' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'customer_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    {% endif %} -->
+                </ul>
+
+                <div class="d-flex ms-lg-3 mt-3 mt-lg-0 align-items-center">
+                    <!-- Cart Icon -->
+                        {% if user.is_authenticated and user.user_type == 'customer' %}
+                        <div class="dropdown me-3">
+
+                            <a href="{% url 'view_cart' %}"
+                            class="btn btn-outline-light position-relative dropdown-toggle"
+                            id="cartDropdown">
+
+                                <i class="bi bi-cart3 fs-5"></i>
+
+                                {% if cart_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-wine-accent">
+                                    {{ cart_count }}
+                                </span>
+                                {% endif %}
+                            </a>
+
+                            <!-- CART PREVIEW DROPDOWN -->
+                            <div class="dropdown-menu dropdown-menu-end p-3" style="width: 320px;">
+
+                                {% if cart_items %}
+                                    <h6 class="fw-bold mb-2">Your Cart</h6>
+
+                                    {% for item in cart_items|slice:":3" %}
+                                        <div class="d-flex align-items-center mb-2">
+                                            {% if item.product %}
+                                                <img src="{{ item.product.image.url }}" width="45" height="45" class="rounded me-2">
+                                                <div class="flex-grow-1">
+                                                    <div class="small fw-bold">{{ item.product.name|truncatechars:20 }}</div>
+                                                    <div class="text-muted small">Qty: {{ item.quantity }}</div>
+                                                </div>
+                                                <div class="fw-bold">₹{{ item.get_total_price }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+
+                                    <hr class="my-2">
+
+                                    <div class="d-flex justify-content-between fw-bold mb-2">
+                                        <span>Total:</span>
+                                        <span>₹{{ cart_total }}</span>
+                                    </div>
+
+                                    <a href="{% url 'view_cart' %}" class="btn btn-wine-primary w-100 btn-sm">
+                                        View Cart
+                                    </a>
+
+                                {% else %}
+                                    <p class="text-center text-muted mb-0">Your cart is empty</p>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+                    
+                    <!-- User Dropdown -->
+                    <div class="dropdown">
+                        {% if user.is_authenticated %}
+                            <!-- Logged In User Menu -->
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown">
+                                <i class="bi bi-person-fill me-1"></i>
+                                {% if user.full_name %}
+                                    {{ user.full_name|truncatechars:15 }}
+                                {% else %}
+                                    {{ user.username|truncatechars:15 }}
+                                {% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                {% if user.user_type == 'customer' %}
+                                    <li><a class="dropdown-item" href="{% url 'customer_dashboard' %}">
+                                        <i class="bi bi-speedometer2 me-2"></i>My Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="bi bi-bag me-2"></i>My Orders
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="bi bi-heart me-2"></i>Wishlist
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% elif user.user_type == 'staff' %}
+                                    <li><a class="dropdown-item" href="{% url 'staff_dashboard' %}">
+                                        <i class="bi bi-speedometer2 me-2"></i>Staff Dashboard
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% elif user.user_type == 'admin' %}
+                                    <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">
+                                        <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="bi bi-gear me-2"></i>Settings
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'user_logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        {% else %}
+                            <!-- Guest User Login Menu -->
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="loginDropdown">
+                                <i class="bi bi-person-fill me-1"></i> Login
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+                                <li><a class="dropdown-item" href="{% url 'customer_login' %}">
+                                    <i class="bi bi-person me-2"></i>Customer Login
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'staff_login' %}">
+                                    <i class="bi bi-person-gear me-2"></i>Staff Login
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'admin_login' %}">
+                                    <i class="bi bi-person-badge me-2"></i>Admin Login
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'customer_signup' %}">
+                                    <i class="bi bi-person-plus me-2"></i>Create Account
+                                </a></li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Enhanced Hero Section -->
+    <section id="home">
+        <!-- Background Animation -->
+        <div class="hero-bg-animation">
+            <!-- Background bubbles will be generated by JavaScript -->
+        </div>
+
+        <!-- Floating Elements -->
+        <div class="floating-elements">
+            <div class="floating-element float-1">
+                <img src="{% static 'images/bg6.png' %}" alt="Wine Bottle">
+            </div>
+            <div class="floating-element float-2">
+                <img src="{% static 'images/bg7.png' %}" alt="Wine Glass">
+            </div>
+            <div class="floating-element float-3">
+                <img src="{% static 'images/bg8.png' %}" alt="Grapes">
+            </div>
+        </div>
+
+        <div class="container hero-container">
+            <div class="hero-content-wrapper">
+                <div class="hero-text-content" data-aos="fade-right" data-aos-delay="200">
+                    <h1 class="hero-title">
+                        Experience <span class="accent-text">Premium</span> Wines
+                    </h1>
+                    <p class="hero-subtitle">
+                        Discover curated selections from world-class vineyards, delivered to your doorstep each month. 
+                        Join thousands of wine enthusiasts in our exclusive community.
+                    </p>
+                    
+                    <div class="hero-features">
+                        <div class="hero-feature">
+                            <i class="bi bi-star-fill"></i>
+                            <span>Curated Selection</span>
+                        </div>
+                        <div class="hero-feature">
+                            <i class="bi bi-truck"></i>
+                            <span>Free Delivery</span>
+                        </div>
+                        <div class="hero-feature">
+                            <i class="bi bi-award"></i>
+                            <span>Expert Rated</span>
+                        </div>
+                    </div>
+                    
+                    <button class="subscribe-btn">
+                        START YOUR JOURNEY
+                    </button>
+                </div>
+
+                <div class="hero-visual-content" data-aos="fade-left" data-aos-delay="400">
+                    <div class="wine-bottle-container">
+                        <div class="wine-pour"></div>
+                        <img src="{% static 'images/bg6.png' %}" alt="Premium Wine Bottle" class="main-bottle">
+                        <div class="wine-glass">
+                            <div class="wine-in-glass"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="section-title"><span class="text-wine-primary">Our</span> Story</h2>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="timeline">
+                        <div class="timeline-item" data-aos="fade-up">
+                            <div class="timeline-year">2005</div>
+                            <div class="timeline-content">
+                                <h3>Humble Beginnings</h3>
+                                <p>Founded in a small vineyard with just three barrels and a dream to share great wine with the world.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                            <div class="timeline-year">2012</div>
+                            <div class="timeline-content">
+                                <h3>First Award</h3>
+                                <p>Received our first international recognition at the Decanter World Wine Awards.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                            <div class="timeline-year">2020</div>
+                            <div class="timeline-content">
+                                <h3>Global Reach</h3>
+                                <p>Expanded to serve wine enthusiasts in over 30 countries worldwide with our subscription service.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-image text-center" data-aos="fade-left">
+                        <img src="https://images.unsplash.com/photo-1568213816046-0ee1c42bd559?ixlib=rb-4.0.3&auto=format&fit=crop&w=1352&q=80" alt="Wine Cellar" class="img-fluid rounded shadow">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products-section section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="section-title text-white">Featured <span class="text-wine-accent">Wines</span></h2>
+                    <p class="lead text-light">Discover our curated selection of premium wines</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
+                    <div class="product-card">
+                        <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');">
+                            <div class="product-tag">Bestseller</div>
+                        </div>
+                        <div class="product-content">
+                            <h3>Sauvignon Blanc</h3>
+                            <p>A crisp, refreshing white wine with notes of citrus and tropical fruits.</p>
+                            <div class="product-price">$24.99</div>
+                            <button class="btn btn-outline-light w-100">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="product-card">
+                        <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');">
+                            <div class="product-tag">New</div>
+                        </div>
+                        <div class="product-content">
+                            <h3>Pinot Noir</h3>
+                            <p>Elegant red wine with aromas of cherry, raspberry, and subtle earthy notes.</p>
+                            <div class="product-price">$32.99</div>
+                            <button class="btn btn-outline-light w-100">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="product-card">
+                        <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');">
+                            <div class="product-tag">Limited</div>
+                        </div>
+                        <div class="product-content">
+                            <h3>Rosé</h3>
+                            <p>Delicate pink wine with flavors of strawberry, watermelon, and citrus.</p>
+                            <div class="product-price">$19.99</div>
+                            <button class="btn btn-outline-light w-100">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Section -->
+    <section id="subscription" class="subscription-section section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="section-title">Wine <span class="text-wine-primary">Subscription</span> Plans</h2>
+                    <p class="lead">Choose the perfect plan for your wine journey</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
+                    <div class="subscription-card text-center">
+                        <h3>Starter</h3>
+                        <div class="subscription-price">$29<span>/month</span></div>
+                        <ul class="subscription-features">
+                            <li><i class="bi bi-check-circle"></i> 2 Bottles per month</li>
+                            <li><i class="bi bi-check-circle"></i> Tasting Notes</li>
+                            <li><i class="bi bi-check-circle"></i> Food Pairing Suggestions</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Exclusive Events</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Sommelier Support</li>
+                        </ul>
+                        <button class="btn btn-outline-dark w-100">Get Started</button>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="subscription-card text-center featured">
+                        <h3>Connoisseur</h3>
+                        <div class="subscription-price">$59<span>/month</span></div>
+                        <ul class="subscription-features">
+                            <li><i class="bi bi-check-circle"></i> 4 Bottles per month</li>
+                            <li><i class="bi bi-check-circle"></i> Detailed Tasting Notes</li>
+                            <li><i class="bi bi-check-circle"></i> Food Pairing Recipes</li>
+                            <li><i class="bi bi-check-circle"></i> Exclusive Events Access</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Sommelier Support</li>
+                        </ul>
+                        <button class="btn btn-wine-primary w-100">Get Started</button>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="subscription-card text-center">
+                        <h3>Expert</h3>
+                        <div class="subscription-price">$99<span>/month</span></div>
+                        <ul class="subscription-features">
+                            <li><i class="bi bi-check-circle"></i> 6 Bottles per month</li>
+                            <li><i class="bi bi-check-circle"></i> Premium Tasting Notes</li>
+                            <li><i class="bi bi-check-circle"></i> Chef-Curated Pairings</li>
+                            <li><i class="bi bi-check-circle"></i> VIP Event Access</li>
+                            <li><i class="bi bi-check-circle"></i> Personal Sommelier</li>
+                        </ul>
+                        <button class="btn btn-outline-dark w-100">Get Started</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="events-section section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="section-title text-white">Upcoming <span class="text-wine-accent">Wine Events</span></h2>
+                    <p class="lead text-light">Join us for exclusive wine tasting experiences</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
+                    <div class="event-card">
+                        <div class="event-image" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');"></div>
+                        <div class="event-content">
+                            <div class="event-date">June 15, 2023</div>
+                            <h3 class="event-title">Italian Wine Tasting</h3>
+                            <p class="text-light">Explore the rich flavors of Italian wines from Tuscany, Piedmont, and Sicily.</p>
+                            <button class="btn btn-outline-light mt-3">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="event-card">
+                        <div class="event-image" style="background-image: url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');"></div>
+                        <div class="event-content">
+                            <div class="event-date">July 22, 2023</div>
+                            <h3 class="event-title">French Wine Masterclass</h3>
+                            <p class="text-light">Dive deep into the world of French wines with our expert sommelier.</p>
+                            <button class="btn btn-outline-light mt-3">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="event-card">
+                        <div class="event-image" style="background-image: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');"></div>
+                        <div class="event-content">
+                            <div class="event-date">August 10, 2023</div>
+                            <h3 class="event-title">New World Wine Discovery</h3>
+                            <p class="text-light">Discover exciting wines from California, Australia, and South America.</p>
+                            <button class="btn btn-outline-light mt-3">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section
+      id="contact"
+      class="contact-section position-relative overflow-hidden"
+    >
+            <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-0">
+                    <h2 class="section-title text-white">Upcoming <span class="text-wine-accent">Wine Events</span></h2>
+                    <p class="lead text-light">Join us for exclusive wine tasting experiences</p>
+                </div>
+            </div>
+      <div class="floating-wine-element float-2">
+        <img src="{% static 'images/grapes.png' %}" alt="Floating bottle" />
+      </div>
+      <div class="floating-wine-element float-3">
+        <img src="{% static 'images/wine-cup.png' %}" alt="Floating glass" />
+      </div>
+
+      <div class="container">
+        <div class="row min-vh-100 align-items-center">
+          <div class="col-lg-6 order-lg-2">
+            <div class="contact-form-container" data-aos="fade-left">
+              <h2 class="section-title mb-4 text-white">
+                <span class="text-danger">Get</span> In Touch
+              </h2>
+              <form class="contact-form">
+                <div class="form-floating mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    placeholder="Your Name"
+                  />
+                  <label for="name">Your Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    placeholder="Your Email"
+                  />
+                  <label for="email">Your Email</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <textarea
+                    class="form-control"
+                    id="message"
+                    placeholder="Your Message"
+                    style="height: 120px"
+                  ></textarea>
+                  <label for="message">Your Message</label>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 py-3">
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-6 order-lg-1 gy-sm-5">
+            <div class="contact-info" data-aos="fade-right">
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Location</h3>
+                  <p>Krishnapuram Colony, Madurai</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Phone</h3>
+                  <p>8508229706</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-envelope-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Email</h3>
+                  <p>contact@winex.com</p>
+                </div>
+              </div>
+              <div class="social-links mt-4">
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-instagram"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-facebook"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-twitter-x"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-youtube"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <img
+        src="{% static 'images/winebottle.png' %}"
+        class="contact-bottle"
+        alt="Bottle"
+      />
+      <img
+        src="{% static 'images/grapes.png' %}"
+        class="contact-glass"
+        alt="Glass"
+      />
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-logo">
+                        <span class="text-wine-accent">Wine</span> X
+                    </div>
+                    <p>Discover the world's finest wines with our curated selection and monthly subscription service. Join our community of wine enthusiasts today.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-links">
+                        <h5>Quick Links</h5>
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#products">Products</a></li>
+                            <li><a href="#subscription">Subscription</a></li>
+                            <li><a href="#events">Events</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-links">
+                        <h5>Products</h5>
+                        <ul>
+                            <li><a href="#">Red Wines</a></li>
+                            <li><a href="#">White Wines</a></li>
+                            <li><a href="#">Rosé Wines</a></li>
+                            <li><a href="#">Sparkling Wines</a></li>
+                            <li><a href="#">Dessert Wines</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-newsletter">
+                        <h5>Newsletter</h5>
+                        <p>Subscribe to our newsletter for the latest updates and exclusive offers.</p>
+                        <div class="newsletter-form">
+                            <input type="email" placeholder="Your email address" required>
+                            <button type="submit"><i class="bi bi-send"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Wine X. All rights reserved. | Designed with <i class="bi bi-heart-fill text-wine-accent"></i> for wine lovers</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // Loading spinner functionality
+        window.addEventListener('load', function() {
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            // Add a small delay to ensure the animation is visible
+            setTimeout(function() {
+                loadingSpinner.classList.add('fade-out');
+                
+                // Remove from DOM after fade out
+                setTimeout(function() {
+                    loadingSpinner.style.display = 'none';
+                    
+                    // Initialize AOS after loading
+                    AOS.init({
+                        duration: 1000,
+                        once: true,
+                        offset: 100
+                    });
+                }, 500);
+            }, 8000); // Show for 2 seconds minimum
+        });
+        
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Fade in elements on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        const fadeInObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        fadeElements.forEach(el => fadeInObserver.observe(el));
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    // Close mobile menu if open
+                    const navbarCollapse = document.querySelector('.navbar-collapse');
+                    if (navbarCollapse.classList.contains('show')) {
+                        const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                        bsCollapse.hide();
+                    }
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Active nav link highlighting
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

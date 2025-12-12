@@ -1,0 +1,2336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wine X</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: "Georgia", serif;
+        width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      .navbar {
+        z-index: 999;
+        transition: all 0.3s ease;
+      }
+
+      .navbar.scrolled {
+        background-color: transparent !important;
+        backdrop-filter: blur(10px);
+        padding: 10px 0;
+      }
+
+      .brand-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+      }
+
+      .navbar-nav .nav-link {
+        position: relative;
+        padding: 5px 0;
+        margin: 0 15px;
+      }
+
+      .navbar-nav .nav-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #dc3545;
+        transition: width 0.3s ease;
+      }
+
+      .navbar-nav .nav-link:hover::after {
+        width: 100%;
+      }
+
+      @media (max-width: 992px) {
+        .navbar-collapse {
+          background-color: rgba(0, 0, 0, 0.9);
+          padding: 20px;
+          border-radius: 8px;
+          margin-top: 10px;
+        }
+
+        .navbar-nav {
+          padding-top: 10px;
+        }
+
+        .navbar-nav .nav-link {
+          margin: 5px 0;
+          padding: 8px 0;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .brand-title {
+          font-size: 1.8rem;
+        }
+
+        .navbar .btn {
+          padding: 5px 10px;
+          font-size: 0.9rem;
+        }
+      }
+
+      .navbar-nav .nav-link.active::after {
+        width: 100% !important;
+      }
+   
+.floating-bottles-mobile {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  /* pointer-events: none; */
+  z-index: 2;
+}
+
+.floating-bottle-mobile {
+  position: absolute;
+  width: 60px;
+  bottom: -100px;
+  animation: floatUpMobile var(--duration) ease-in infinite;
+  animation-delay: var(--delay);
+  opacity: 0.8;
+}
+
+.floating-bottle-mobile img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+}
+
+@keyframes floatUpMobile {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-120vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Adjust for very small screens */
+@media (max-width: 400px) {
+  .floating-bottle-mobile {
+    width: 50px;
+  }
+}
+
+      #home {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        background: radial-gradient(circle at center, #2a1301, #4e2901);
+        color: white;
+        overflow: hidden;
+        padding-top: 80px;
+        display: flex;
+        align-items: center;
+      }
+
+      #home img {
+        position: absolute;
+        max-width: 100%;
+        height: auto;
+      }
+      /* pyramid */
+      .containero {
+        position: relative;
+        min-height: 300px;
+        width: 80%;
+
+        z-index: 0;
+      }
+      .description {
+        position: relative;
+        top:150px;
+        z-index: 3;
+      }
+
+      .pyramid {
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        margin-bottom: 20px;
+        height: 300px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: -30px;
+      }
+
+      .bottlo {
+        width: 100px;
+        height: 120px;
+        /* background-image: url('bottlo-r.png'); */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0;
+        transform: translateY(-100vh) rotate(720deg);
+        transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin: 0 5px;
+        filter: blur(1px);
+      }
+
+      .row-5 .bottlo {
+        margin: 0 10px;
+      }
+
+      .row-3 .bottlo {
+        margin: 12px 15px;
+      }
+
+      .row-2 .bottlo {
+        margin: 8px 25px;
+      }
+
+      .row-1 .bottlo {
+        margin: 10px auto;
+      }
+
+      @keyframes float1 {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(1deg);
+        }
+      }
+
+      .bottlo.float1 {
+        animation: float1 3s ease-in-out infinite;
+      }
+
+      .row-5 .bottlo.float1 {
+        animation: float1 3.5s ease-in-out infinite;
+      }
+
+      .row-3 .bottlo.float1 {
+        animation: float1 3.2s ease-in-out infinite;
+      }
+
+      .row-2 .bottlo.float1 {
+        animation: float1 2.8s ease-in-out infinite;
+      }
+
+      .row-1 .bottlo.float1 {
+        animation: float1 4s ease-in-out infinite;
+      }
+
+      /* end pyramid */
+
+      .bottle {
+        width: 18vw;
+        position: absolute;
+        bottom: 15%;
+        left: 30%;
+        transform: rotate(75deg);
+        animation: slideInLeft 1.2s ease-out forwards;
+        z-index: 1000;
+      }
+
+      .glass {
+        width: 8vw;
+        bottom: 7%;
+        right: 400px;
+        transform: rotate(60deg);
+        animation: slideInRight 1.2s ease-out forwards;
+      }
+
+      .pour {
+        width: 15vw;
+        top: 39.5%;
+        left: 60.5%;
+        transform: rotate(45deg);
+        opacity: 0;
+        animation: pourWine 1s ease-in 2s forwards;
+      }
+
+      @keyframes slideInLeft {
+        0% {
+          transform: translateX(-200px) rotate(-60deg);
+          opacity: 0;
+        }
+        100% {
+          transform: rotate(90deg);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInRight {
+        0% {
+          transform: translateX(200px) rotate(30deg);
+          opacity: 0;
+        }
+        100% {
+          transform: rotate(-20deg);
+          opacity: 1;
+        }
+      }
+
+      @keyframes pourWine {
+        0% {
+          opacity: 0;
+          transform: scaleY(0.2) rotate(15deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scaleY(1) rotate(10deg);
+        }
+      }
+
+      .desktop-content {
+        position: absolute;
+        top: 50%;
+        left: 75%;
+        transform: translateY(-50%);
+        z-index: 10;
+        max-width: 400px;
+        text-align: left;
+        animation: fadeIn 1s ease-out;
+      }
+
+      .desktop-content h3 {
+        font-size: 2.4rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        line-height: 1.2;
+      }
+
+      .desktop-content p {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        line-height: 1.4;
+      }
+
+      .mobile-content {
+        display: none;
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        padding: 0 20px;
+        text-align: center;
+      }
+
+      .mobile-content h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        line-height: 1.3;
+      }
+
+      .mobile-content p {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        line-height: 1.6;
+      }
+
+      .subscribe-btn {
+        padding: 10px 25px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 30px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .subscribe-btn:hover {
+        background: #c82333;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .animated-text span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+        z-index: 2000;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bubbles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: rise 10s infinite ease-in;
+      }
+
+      .bubble:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        left: 10%;
+        animation-duration: 8s;
+      }
+
+      .bubble:nth-child(2) {
+        width: 20px;
+        height: 20px;
+        left: 20%;
+        animation-duration: 5s;
+        animation-delay: 1s;
+      }
+
+      .bubble:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        left: 35%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+      }
+
+      .bubble:nth-child(4) {
+        width: 80px;
+        height: 80px;
+        left: 50%;
+        animation-duration: 11s;
+        animation-delay: 0s;
+      }
+
+      .bubble:nth-child(5) {
+        width: 35px;
+        height: 35px;
+        left: 55%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+      }
+
+      .bubble:nth-child(6) {
+        width: 45px;
+        height: 45px;
+        left: 65%;
+        animation-duration: 8s;
+        animation-delay: 3s;
+      }
+
+      .bubble:nth-child(7) {
+        width: 25px;
+        height: 25px;
+        left: 75%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+      }
+
+      .bubble:nth-child(8) {
+        width: 80px;
+        height: 80px;
+        left: 80%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+      }
+
+      @media (max-width: 992px) {
+        .bottle,
+        .glass,
+        .pour {
+          display: none;
+        }
+
+        .desktop-content {
+          display: none;
+        }
+
+        .mobile-content {
+          display: block;
+        }
+
+        #home {
+          background: linear-gradient(
+              rgba(42, 19, 1, 0.9),
+              rgba(78, 41, 1, 0.9)
+            ),
+            url('{% static "images/wine-bg-mobile.jpg" %}');
+          background-size: cover;
+          background-position: center;
+        }
+
+        .animated-text span:nth-child(1) {
+          animation-delay: 0.1s;
+        }
+        .animated-text span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .animated-text span:nth-child(3) {
+          animation-delay: 0.3s;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .mobile-content {
+          padding: 0 15px;
+        }
+
+        .mobile-content h3 {
+          font-size: 1.8rem;
+        }
+
+        .mobile-content p {
+          font-size: 1rem;
+        }
+
+        .subscribe-btn {
+          padding: 8px 20px;
+          font-size: 0.9rem;
+        }
+      }
+
+      @keyframes rise {
+        0% {
+          bottom: -100px;
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(100px);
+        }
+        100% {
+          bottom: 1080px;
+          transform: translateX(-200px);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media only screen and (min-width: 1280px) and (max-width: 1366px) and (min-height: 700px) and (max-height: 768px) {
+        .bottle {
+          left: 15% !important;
+          width: 22vw !important;
+          bottom: 12% !important;
+          transform: rotate(90deg) !important;
+          animation: slideInLeftWide 1.2s ease-out forwards !important;
+        }
+
+        .pour {
+          left: 52.5% !important;
+          width: 17vw !important;
+          top: 38% !important;
+          animation: pourWineWide 1s ease-out 2s forwards !important;
+        }
+
+        .glass {
+          right: 30% !important;
+          width: 9vw !important;
+          bottom: 7% !important;
+          transform: rotate(-15deg) !important;
+        }
+
+        @keyframes slideInLeftWide {
+          0% {
+            transform: translateX(-200px) rotate(-60deg);
+            opacity: 0;
+          }
+          100% {
+            transform: rotate(90deg);
+            opacity: 1;
+          }
+        }
+
+        @keyframes pourWineWide {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(15deg);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scaleY(0.7) rotate(7deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(5deg);
+          }
+        }
+      }
+
+
+
+@keyframes pourWineWide {
+  0% { opacity: 0; transform: scaleY(0.2) rotate(15deg); }
+  50% { opacity: 0.7; transform: scaleY(0.7) rotate(7deg); }
+  100% { opacity: 1; transform: scaleY(1) rotate(5deg); }
+}
+
+
+@media only screen and (min-device-width: 993px) and (max-device-width: 1030px) and (max-device-height: 594px),
+       only screen and (min-width: 993px) and (max-width: 1030px) and (max-height: 594px) {
+  #home { height: 594px !important; overflow: hidden !important; }
+  .bottle { left: 5% !important; width: 180px !important; bottom: 20% !important; transform: rotate(90deg) !important; }
+  .pour { left: 35% !important; width: 170px !important; top: 40% !important; }
+  .glass { right: 50% !important; width: 80px !important; bottom: 10% !important; transform: rotate(-15deg) !important; }
+  .desktop-content { left: 60% !important; top: 45% !important; transform: translateY(-50%) !important; max-width: 300px !important; }
+}
+
+
+@media only screen and (min-device-width: 1031px) and (max-device-width: 1200px) and (max-device-height: 594px),
+       only screen and (min-width: 1031px) and (max-width: 1200px) and (max-height: 594px) {
+  .bottle{bottom: 10% !important; left: 7% !important;}
+  .pour { left: 45% !important; top: 40% !important; } 
+}
+
+
+@media only screen and (min-device-width: 1081px) and (max-device-width: 1200px) and (max-device-height: 594px),
+       only screen and (min-width: 1081px) and (max-width: 1200px) and (max-height: 594px) {
+    .bottle { width: 150px !important; left: 7.5% !important;top: -20% !important;}
+}
+@media only screen and (min-device-width: 1201px) and (max-device-width: 1280px) and (max-device-height: 594px),
+       only screen and (min-width: 1201px) and (max-width: 1280px) and (max-height: 594px) {
+        .bottle { width: 150px !important; left: 9% !important; top: -25%;}
+        .pour { left: 45% !important; bottom: -25% !important; } 
+        .glass { right: 50% !important; width: 80px !important; bottom: 5% !important; transform: rotate(-15deg) !important; }
+       }
+@media only screen and (min-device-width: 1281px) and (max-device-width: 1400px) and (max-device-height: 594px),
+       only screen and (min-width: 1281px) and (max-width: 1400px) and (max-height: 594px) {
+        .bottle { width: 250px !important; left: 16% !important; bottom: 13% !important;}
+        .pour { left: 45% !important; top: -5%;} 
+        .glass { right: 40% !important; width: 100px !important; bottom: 5% !important; }
+       }
+@media only screen and (min-device-width: 1401px) and (max-device-width: 1480px) and (max-device-height: 594px),
+       only screen and (min-width: 1401px) and (max-width: 1480px) and (max-height: 594px) {
+  .bottle{bottom: 4.5% !important; left: 12% !important;}
+  .pour { left: 41% !important; top: 35% !important; } 
+  .glass{right: 45% !important;}
+}
+@media only screen and (min-device-width: 1481px) and (max-device-width: 1600px) and (max-device-height: 594px),
+       only screen and (min-width: 1481px) and (max-width: 1600px) and (max-height: 594px) {
+   .bottle{left: 5%!important; bottom: 5%!important;}
+   .pour{left: 35% !important; top:35% !important}
+   .glass{right: 50% !important; top: 40%;}
+}
+
+
+@media only screen and (max-width: 1440px) {
+        .bottle {
+          left: 25%;
+          width: 20vw;
+        }
+
+        .pour {
+          left: 58%;
+          width: 16vw;
+          top: 35%;
+        }
+
+        .glass {
+          right: 30%;
+        }
+        @keyframes pourWine {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(15deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(20deg);
+          }
+        }
+      }
+
+      @media screen and (max-width: 1280px) {
+        .bottle {
+          left: 10%;
+          width: 22vw;
+          bottom: 100px;
+        }
+
+        .pour {
+          left: 48%;
+          width: 18vw;
+          top: 45%;
+        }
+
+        .glass {
+          right: 35%;
+          width: 9vw;
+        }
+        @keyframes pourWine {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(15deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(5deg);
+          }
+        }
+      }
+
+      /* @media only screen and (max-width: 1024px)and (min-width: 1280px)  and (min-height: 700px) and (max-height: 768px) {
+        .bottle {
+          left: 10%;
+          width: 25vw;
+        }
+
+        .pour {
+          left: 53.5%;
+          width: 20vw;
+          top: 10%;
+        }
+
+        .glass {
+          right: 30%;
+          width: 10vw;
+        }
+        @keyframes pourWine {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(15deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(5deg);
+          }
+        }
+      } */
+
+      /* @media only screen and (min-width: 1025px) and (max-width: 1130) and (min-height: 700px) and (max-height: 768px) {
+
+  
+
+  .bottle {
+    left: 8% !important;
+    width: 24vw !important;
+    bottom: 15% !important;
+    transform: rotate(90deg) !important;
+    animation: slideInLeftMedium 1.2s ease-out forwards !important;
+  }
+
+
+  .pour {
+    left: 48% !important;
+    width: 19vw !important;
+    top: 35% !important;
+    animation: pourWineMedium 1s ease-out 2s forwards !important;
+  }
+
+
+  .glass {
+    right: 35% !important;
+    width: 10vw !important;
+    bottom: 8% !important;
+    transform: rotate(-10deg) !important;
+  }
+
+  @keyframes slideInLeftMedium {
+    0% {
+      transform: translateX(-250px) rotate(-60deg);
+      opacity: 0;
+    }
+    100% {
+      transform: rotate(90deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pourWineMedium {
+    0% {
+      opacity: 0;
+      transform: scaleY(0.2) rotate(20deg);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scaleY(0.6) rotate(10deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scaleY(1) rotate(8deg);
+    }
+  }
+
+
+
+} */
+
+      @media only screen and (min-width: 1131px) and (max-width: 1270) and (min-height: 700px) and (max-height: 768px) {
+        .bottle {
+          left: 8% !important;
+          width: 24vw !important;
+          bottom: 15% !important;
+          transform: rotate(90deg) !important;
+          animation: slideInLeftMedium 1.2s ease-out forwards !important;
+        }
+
+        .pour {
+          left: 48% !important;
+          width: 19vw !important;
+          top: 30% !important;
+          animation: pourWineMedium 1s ease-out 2s forwards !important;
+        }
+
+        .glass {
+          right: 35% !important;
+          width: 10vw !important;
+          bottom: 8% !important;
+          transform: rotate(-10deg) !important;
+        }
+
+        @keyframes slideInLeftMedium {
+          0% {
+            transform: translateX(-250px) rotate(-60deg);
+            opacity: 0;
+          }
+          100% {
+            transform: rotate(90deg);
+            opacity: 1;
+          }
+        }
+
+        @keyframes pourWineMedium {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(20deg);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scaleY(0.6) rotate(10deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(8deg);
+          }
+        }
+      }
+
+
+      @media only screen and (min-width: 1081px) and (max-width: 1280px) {
+        #home {
+          padding-top: 70px;
+        }
+
+        .bottle {
+          left: 10% !important;
+          width: 22vw !important;
+          bottom: 100px !important;
+          transform: rotate(90deg) !important;
+        }
+
+        .pour {
+          left: 48% !important;
+          width: 18vw !important;
+          top: 40% !important;
+        }
+
+        .glass {
+          right: 35% !important;
+          width: 9vw !important;
+          transform: rotate(-15deg) !important;
+        }
+
+        @keyframes pourWine {
+          0% {
+            opacity: 0;
+            transform: scaleY(0.2) rotate(15deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleY(1) rotate(5deg);
+          }
+        }
+      }
+
+      .about-section {
+        background: linear-gradient(rgba(42, 19, 1, 0.9), rgba(78, 41, 1, 0.9)),
+          url('{% static "images/wine-cellar-bg-2.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        padding: 100px 0;
+        min-height: 100vh;
+      }
+
+      .about-section::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 300px;
+        height: 300px;
+        /* background: url('{% static "images/wine-stain.png" %}') no-repeat; */
+        background-size: contain;
+        opacity: 0.1;
+        z-index: 0;
+      }
+
+      .section-title {
+        font-size: 3rem;
+        font-weight: 700;
+        font-family: "Georgia", serif;
+        position: relative;
+        display: inline-block;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: #dc3545;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 50px;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 10px;
+        height: 100%;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 40px;
+      }
+
+      .timeline-year {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #dc3545;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: white;
+        z-index: 1;
+      }
+
+      .timeline-content {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 10px;
+        border-left: 3px solid #dc3545;
+        transition: transform 0.3s ease;
+      }
+
+      .timeline-content:hover {
+        transform: translateX(10px);
+      }
+
+      .timeline-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #fff;
+      }
+
+      .timeline-content p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0;
+      }
+
+      .floating-elements {
+        position: relative;
+        height: 500px;
+      }
+
+      .floating-glass {
+        position: absolute;
+        width: 120px;
+        top: 50px;
+        right: 50px;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-bottle {
+        position: absolute;
+        width: 180px;
+        bottom: 50px;
+        left: 50px;
+        animation: float 8s ease-in-out infinite 1s;
+      }
+
+      .floating-grapes {
+        position: absolute;
+        width: 150px;
+        top: 50px;
+        left: 150px;
+        animation: float 7s ease-in-out infinite 0.5s;
+      }
+      .product-tag {
+        --background: linear-gradient(to left, #f7ba2b 0%, #ea5358 100%);
+        width: 160px;
+        height: 100px;
+        padding: 3px;
+        border-radius: 1rem;
+        overflow: visible;
+        background: var(--background);
+        position: absolute;
+        z-index: 10;
+        left: -60px;
+        bottom: 60%;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: all 0.3s ease;
+        animation: float 3s infinite ease-in-out;
+      }
+
+      .product-tag.active {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .product-tag::after {
+        position: absolute;
+        content: "";
+        top: 15px;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        height: 100%;
+        width: 100%;
+        transform: scale(0.8);
+        filter: blur(15px);
+        background: var(--background);
+        opacity: 0.7;
+      }
+
+      .product-tag .card-info {
+        --color: #181818;
+        background: var(--color);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.7rem;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .product-tag .title {
+        font-weight: bold;
+        font-size: 1rem;
+        color: #f7ba2b;
+        margin-bottom: 5px;
+      }
+
+      .product-tag .desc {
+        font-size: 0.8rem;
+        color: #ddd;
+      }
+
+      .product-tag::before {
+        content: "";
+        position: absolute;
+        right: -8px;
+        bottom: 30px;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-left: 8px solid #181818;
+      }
+
+      .main-image {
+        position: relative;
+      }
+      .products {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        flex-wrap: wrap;
+      }
+      .product {
+        width: 100px;
+        height: 200px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.3s;
+      }
+      .product:hover {
+        transform: translateY(-5px);
+      }
+
+      .product-section {
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(
+            rgba(255, 251, 192, 0.9),
+            rgba(255, 230, 129, 0.9)
+          ),
+          url('{% static "images/wine-vineyard-bg.jpg" %}');
+        background-size: cover;
+        background-position: center 70%;
+        background-attachment: fixed;
+        position: relative;
+        min-height: 100vh;
+        padding: 80px 0;
+      }
+      .product-content {
+        display: flex;
+        flex-direction: column;
+        z-index: 2;
+      }
+      .product-details {
+        order: 1;
+        text-align: center;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .product-display {
+        order: 3;
+        margin-top: 40px;
+      }
+
+      .product-section::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        /* background: url('{% static "images/grapevine-border.png" %}') repeat-x; */
+        background-size: contain;
+        opacity: 0.3;
+        z-index: 1;
+      }
+      .containero1 {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        background: transparent;
+      }
+
+      .left-panel {
+        flex: 1;
+        max-width: 600px;
+      }
+
+      .product-text {
+        color: #4e2901;
+      }
+
+      .wine-title {
+        font-family: cursive;
+        font-size: 2rem;
+        color: #4e2901;
+      }
+
+      .wine-desc {
+        line-height: 1.6;
+      }
+
+      .wine-price {
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+
+      .buy-btn {
+        background: #000;
+        color: #fff;
+        border-radius: 5px;
+        padding: 10px 24px;
+        font-weight: bold;
+      }
+      .main-bottle-img {
+        max-height: 450px;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        animation: fadeIn 1s ease;
+      }
+      .thumbs {
+  z-index: 1000;
+  position: relative;
+}
+
+      .thumb-img {
+        width: 100px;
+        filter: blur(2px);
+        cursor: pointer;
+        pointer-events:auto;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+      }
+
+      .thumb-img:hover {
+        filter: blur(0);
+        transform: scale(1.05);
+      }
+
+      .right-panel {
+        flex: 1;
+        text-align: center;
+      }
+
+      .main-image {
+        position: relative;
+        display: inline-block;
+      }
+
+      .thumb-hint {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        animation: blinkHint 1.5s infinite;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      @keyframes blinkHint {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translateX(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(5px);
+        }
+      }
+
+      @media (min-width: 992px) {
+        .thumbs.flex-lg-column .thumb-hint {
+          right: -35px;
+          top: 50%;
+          transform: translateY(-50%) rotate(0deg);
+        }
+        .thumbs.flex-lg-column .left-hint {
+          left: -35px;
+          right: auto;
+          transform: translateY(-50%) rotate(180deg);
+        }
+      }
+
+      @media (max-width: 991px) {
+        .thumb-hint {
+          position: absolute;
+          width: 30px;
+          height: 30px;
+          bottom: 50px;
+          left: -20%;
+          animation: blinkHint 1.5s infinite;
+          z-index: 10;
+          pointer-events: none;
+        }
+        .thumbs:not(.flex-lg-column) .left-hint {
+          bottom: -35px;
+          left: 50%;
+          transform: translateX(-50%) rotate(90deg);
+        }
+        .thumbs:not(.flex-lg-column) .left-hint {
+          transform: translateX(-50%) rotate(-90deg);
+        }
+      }
+
+      .thumb-img:not([style*="filter: blur(0)"]) + .thumb-hint {
+        display: block;
+      }
+      .thumb-img[style*="filter: blur(0)"] + .thumb-hint {
+        display: none;
+      }
+
+      .contact-section {
+        background: linear-gradient(
+          rgba(26, 26, 26, 0.9),
+          rgba(74, 20, 20, 0.9)
+        );
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        min-height: 100vh;
+        padding: 80px 0;
+        color: white;
+      }
+
+      .contact-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/cork-texture.png" %}');
+        opacity: 0.15;
+        z-index: -1;
+      }
+
+      .contact-form-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .contact-form .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        border-radius: 5px;
+      }
+
+      .contact-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+      }
+
+      .contact-form .form-floating label {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+      }
+
+      .info-icon {
+        width: 50px;
+        height: 50px;
+        background: #dc3545;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 1.2rem;
+      }
+
+      .info-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+      }
+
+      .info-content p {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+      }
+
+      .social-icon:hover {
+        background: #dc3545;
+        transform: translateY(-3px);
+      }
+
+      .contact-bottle {
+        position: absolute;
+        width: 150px;
+        bottom: 50px;
+        right: 100px;
+        animation: float 8s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      .contact-glass {
+        position: absolute;
+        width: 80px;
+        top: 100px;
+        right: 200px;
+        animation: float 6s ease-in-out infinite 0.5s;
+        z-index: -1;
+      }
+
+      .floating-wine-element {
+        position: absolute;
+        opacity: 0.1;
+        z-index: 0;
+        animation: float 15s infinite ease-in-out;
+      }
+
+      .float-1 {
+        width: 150px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .float-2 {
+        width: 100px;
+        bottom: 15%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+
+      .float-3 {
+        width: 120px;
+        top: 40%;
+        right: 15%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+        50% {
+          transform: translateY(10px) rotate(-5deg);
+        }
+        75% {
+          transform: translateY(-15px) rotate(3deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @media (max-width: 992px) {
+        .floating-elements {
+          height: 400px;
+          margin-top: 50px;
+        }
+
+        .section-title {
+          font-size: 2.5rem;
+        }
+
+        .contact-form-container {
+          padding: 30px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .about-section,
+        .contact-section,
+        .product-section {
+          padding: 60px 0;
+          background-attachment: scroll;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .timeline-year {
+          width: 50px;
+          height: 50px;
+          font-size: 1rem;
+        }
+
+        .floating-glass {
+          width: 80px;
+          right: 20px;
+        }
+
+        .floating-bottle {
+          width: 120px;
+          left: 20px;
+        }
+
+        .floating-grapes {
+          width: 100px;
+          left: 50px;
+        }
+
+        .contact-bottle {
+          width: 100px;
+          right: 30px;
+          bottom: 30px;
+        }
+
+        .contact-glass {
+          width: 60px;
+          right: 80px;
+          top: 80px;
+        }
+
+        .about-section::before,
+        .product-section::after {
+          display: none;
+        }
+
+        .floating-wine-element {
+          width: 80px !important;
+          opacity: 0.05;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-transparent position-fixed top-0 w-100 px-4 py-3"
+    >
+      <div class="container-fluid">
+        <h1 class="brand-title text-white m-0">
+          <span class="text-danger">wine</span> X
+        </h1>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#about">About us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#product">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#contact">Contact us</a>
+            </li>
+          </ul>
+
+<div class="d-flex ms-lg-3">
+
+    <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
+    <a href="{% url 'signup' %}" class="btn btn-outline-light">Sign up</a>
+
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section id="home">
+      <div class="desktop-content">
+        <h3>Monthly <span class="text-danger">Wine</span> Surprises</h3>
+        <p>It's Time to enjoy the surprise, wine–der and be delighted!</p>
+        <button class="subscribe-btn">SUBSCRIBE NOW</button>
+      </div>
+
+      <div class="mobile-content">
+          <div class="floating-bottles-mobile d-lg-none">
+    <div class="floating-bottle-mobile" style="--delay: 0s; --duration: 8s; left: 15%;">
+      <img src="{% static 'images/bottle1.png' %}" alt="Floating Wine Bottle">
+    </div>
+       <div class="floating-bottle-mobile" style="--delay: 2s; --duration: 8s; left: 15%;">
+      <img src="{% static 'images/bottle4.png' %}" alt="Floating Wine Bottle">
+    </div>
+       <div class="floating-bottle-mobile" style="--delay: 4s; --duration: 8s; left: 15%;">
+      <img src="{% static 'images/bottle5.png' %}" alt="Floating Wine Bottle">
+    </div>
+    <div class="floating-bottle-mobile" style="--delay: 6s; --duration: 10s; left: 70%;">
+      <img src="{% static 'images/bottle6.png' %}" alt="Floating Wine Bottle">
+    </div>
+    <div class="floating-bottle-mobile" style="--delay: 8s; --duration: 12s; left: 40%;">
+      <img src="{% static 'images/bottle3.png' %}" alt="Floating Wine Bottle">
+    </div>
+  </div>
+        <h3 class="animated-text">
+          <span>Monthly</span>
+          <span class="text-danger">Wine</span>
+          <span>Surprises</span>
+        </h3>
+        <p>
+          Discover the world's finest wines delivered to your doorstep each
+          month.
+        </p>
+        <p>
+          Join our community of wine enthusiasts and elevate your tasting
+          journey.
+        </p>
+        <button class="subscribe-btn">SUBSCRIBE NOW</button>
+      </div>
+
+      <img
+        src="{% static 'images/frenchwinebottle.svg' %}"
+        class="bottle"
+        alt="Wine Bottle"
+      />
+      <img
+        src="{% static 'images/Frame 36.png' %}"
+        class="pour"
+        alt="Wine Pour"
+      />
+      <img
+        src="{% static 'images/Muga_Glass_of_red_wine.svg' %}"
+        class="glass"
+        alt="Wine Glass"
+      />
+
+      <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+      </div>
+    </section>
+
+    <section id="about" class="about-section position-relative overflow-hidden">
+      <div class="floating-wine-element float-1">
+        <img src="{% static 'images/wine-drum.png' %}" alt="Floating bottle" />
+      </div>
+      <div class="floating-wine-element float-2">
+        <img src="{% static 'images/grapes.png' %}" alt="Floating glass" />
+      </div>
+
+      <div class="container">
+        <div class="row min-vh-100 align-items-center">
+          <div class="col-lg-6">
+            <div class="about-content" data-aos="fade-right">
+              <h2 class="section-title mb-4">
+                <span class="text-danger">Our</span> Story
+              </h2>
+              <div class="timeline">
+                <div
+                  class="timeline-item"
+                  data-aos="fade-up"
+                  data-aos-delay="200"
+                >
+                  <div class="timeline-year">2005</div>
+                  <div class="timeline-content">
+                    <h3>Humble Beginnings</h3>
+                    <p>
+                      Founded in a small area with just three barrels and a
+                      dream to share great wine.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="timeline-item"
+                  data-aos="fade-up"
+                  data-aos-delay="400"
+                >
+                  <div class="timeline-year">2012</div>
+                  <div class="timeline-content">
+                    <h3>First Award</h3>
+                    <p>
+                      Received our first international recognition at the
+                      Decanter World Wine Awards.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="timeline-item"
+                  data-aos="fade-up"
+                  data-aos-delay="600"
+                >
+                  <div class="timeline-year">2020</div>
+                  <div class="timeline-content">
+                    <h3>Global Reach</h3>
+                    <p>
+                      Expanded to serve wine enthusiasts in over 30 countries
+                      worldwide.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-danger mt-4 px-4 py-2" data-aos="zoom-in">
+                Explore More
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="floating-elements">
+              <img
+                src="{% static 'images/Muga_Glass_of_red_wine.svg' %}"
+                class="floating-glass"
+                alt="Wine Glass"
+              />
+              <img
+                src="{% static 'images/winebottle.png' %}"
+                class="floating-bottle"
+                alt="Wine Bottle"
+              />
+              <img
+                src="{% static 'images/grapes.png' %}"
+                class="floating-grapes"
+                alt="Grapes"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<section id="product" class="product-section">
+  <audio id="bottleSound" preload="auto">
+    <source src="{% static 'sounds/bottle-clink.mp3' %}" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="container">
+    <div class="row align-items-center">
+      
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <div class="text-center text-lg-start mb-4 description">
+          <h2 class="brand-title mb-2">
+            <span class="text-danger">wine</span> X
+          </h2>
+          <h3 id="wineName" class="wine-title mb-3">SAUVIGNON BLANC</h3>
+          <p id="wineDescription" class="wine-desc mb-3">
+            Sauvignon Blanc is an international white grape variety that
+            originates in Bordeaux...
+          </p>
+          <h4 id="winePrice" class="wine-price mb-3">RS:1500</h4>
+          <button class="btn buy-btn">BUY NOW</button>
+        </div>
+
+        <!-- Pyramid Container -->
+        <div class="containero d-none d-lg-block mt-4">
+          <div class="pyramid">
+            <div class="row row-5">
+              <div class="bottlo" data-delay="0" data-image='{% static "images/bottle1.png" %}'></div>
+              <div class="bottlo" data-delay="0.1" data-image='{% static "images/bottle2.png" %}'></div>
+              <div class="bottlo" data-delay="0.2" data-image='{% static "images/bottle3.png" %}'></div>
+              <div class="bottlo" data-delay="0.3" data-image='{% static "images/bottle4.png" %}'></div>
+              <div class="bottlo" data-delay="0.4" data-image='{% static "images/bottle5.png" %}'></div>
+            </div>
+
+            <div class="row row-3">
+              <div class="bottlo" data-delay="0.5" data-image='{% static "images/bottle6.png" %}'></div>
+              <div class="bottlo" data-delay="0.6" data-image='{% static "images/bottle7.png" %}'></div>
+              <div class="bottlo" data-delay="0.7" data-image='{% static "images/bottle8.png" %}'></div>
+            </div>
+
+            <div class="row row-2">
+              <div class="bottlo" data-delay="0.8" data-image='{% static "images/bottle9.png" %}'></div>
+              <div class="bottlo" data-delay="0.9" data-image='{% static "images/bottle10.png" %}'></div>
+            </div>
+
+            <div class="row row-1">
+              <div class="bottlo" data-delay="1.0" data-image='{% static "images/bottle11.png" %}'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column (Product Selector) -->
+          <div class="col-lg-6 order-1 order-lg-2">
+            <div
+              class="d-flex flex-lg-row flex-column align-items-center justify-content-center gap-4"
+            >
+              <div class="main-image text-center">
+                <div class="product-tag">
+                  <div class="card-info">
+                    <p class="title" id="productTagTitle">SAUVIGNON BLANC</p>
+                    <p class="desc" id="productTagDesc">Crisp & Refreshing</p>
+                  </div>
+                </div>
+                <img
+                  id="mainWineImage"
+                  src="{% static 'images/sauvignon_bottle.png' %}"
+                  alt="Main Bottle"
+                  class="main-bottle-img img-fluid"
+                />
+              </div>
+              <div
+                class="thumbs d-flex flex-lg-column flex-row justify-content-center align-items-center gap-sm-3 mt-3 mt-lg-0 z-5"
+              >
+                <div class="position-relative">
+                  <img
+                    id="thumb1"
+                    src="{% static 'images/rose_bottle.png' %}"
+                    class="thumb-img"
+                    onclick="switchProduct(1)"
+                    alt="Thumbnail 1"
+                  />
+                  <img
+                    src="{% static 'images/arrow-right.svg' %}"
+                    class="thumb-hint left-hint"
+                    alt="Click hint"
+                  />
+                </div>
+                <div class="position-relative">
+                  <img
+                    id="thumb2"
+                    src="{% static 'images/whitewine_bottle.png' %}"
+                    class="thumb-img"
+                    onclick="switchProduct(2)"
+                    alt="Thumbnail 2"
+                  />
+                  <img
+                    src="{% static 'images/arrow-right.svg' %}"
+                    class="thumb-hint left-hint"
+                    alt="Click hint"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+    </div>
+  </div>
+
+  <div class="floating-wine-element float-1">
+    <img src="{% static 'images/grapes.png' %}" alt="Floating grapes" />
+  </div>
+  <div class="floating-wine-element float-3">
+    <img src="{% static 'images/wine-cup.png' %}" alt="Floating barrel" />
+  </div>
+</section>
+    <section
+      id="contact"
+      class="contact-section position-relative overflow-hidden"
+    >
+      <div class="floating-wine-element float-2">
+        <img src="{% static 'images/grapes.png' %}" alt="Floating bottle" />
+      </div>
+      <div class="floating-wine-element float-3">
+        <img src="{% static 'images/wine-cup.png' %}" alt="Floating glass" />
+      </div>
+
+      <div class="container">
+        <div class="row min-vh-100 align-items-center">
+          <div class="col-lg-6 order-lg-2">
+            <div class="contact-form-container" data-aos="fade-left">
+              <h2 class="section-title mb-4 text-white">
+                <span class="text-danger">Get</span> In Touch
+              </h2>
+              <form class="contact-form">
+                <div class="form-floating mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    placeholder="Your Name"
+                  />
+                  <label for="name">Your Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    placeholder="Your Email"
+                  />
+                  <label for="email">Your Email</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <textarea
+                    class="form-control"
+                    id="message"
+                    placeholder="Your Message"
+                    style="height: 120px"
+                  ></textarea>
+                  <label for="message">Your Message</label>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 py-3">
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-6 order-lg-1 gy-sm-5">
+            <div class="contact-info" data-aos="fade-right">
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Location</h3>
+                  <p>Krishnapuram Colony, Madurai</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Phone</h3>
+                  <p>8508229706</p>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <i class="bi bi-envelope-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Email</h3>
+                  <p>contact@winex.com</p>
+                </div>
+              </div>
+              <div class="social-links mt-4">
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-instagram"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-facebook"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-twitter-x"></i
+                ></a>
+                <a href="#" class="social-icon"
+                  ><i class="bi bi-youtube"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <img
+        src="{% static 'images/winebottle.png' %}"
+        class="contact-bottle"
+        alt="Bottle"
+      />
+      <img
+        src="{% static 'images/grapes.png' %}"
+        class="contact-glass"
+        alt="Glass"
+      />
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+      AOS.init({
+        duration: 1000,
+        once: true,
+      });
+      // Randomize floating bottles on small screens
+function setupFloatingBottles() {
+  if (window.innerWidth < 992) { // Only for mobile
+    const bottles = document.querySelectorAll('.floating-bottle-mobile');
+    
+    bottles.forEach(bottle => {
+      // Randomize properties
+      const left = Math.random() * 80 + 10; // 10-90%
+      const duration = Math.random() * 7 + 8; // 8-15s
+      const delay = Math.random() * 5; // 0-5s
+      const size = Math.random() * 20 + 50; // 50-70px
+      
+      bottle.style.setProperty('--duration', `${duration}s`);
+      bottle.style.setProperty('--delay', `${delay}s`);
+      bottle.style.left = `${left}%`;
+      bottle.style.width = `${size}px`;
+    });
+  }
+}
+
+
+window.addEventListener('load', setupFloatingBottles);
+window.addEventListener('resize', setupFloatingBottles);
+
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 50) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const animatedText = document.querySelector(".animated-text");
+        if (animatedText) {
+          const spans = animatedText.querySelectorAll("span");
+          spans.forEach((span, index) => {
+            span.style.animationDelay = `${index * 0.1}s`;
+          });
+        }
+      });
+
+      const products = [
+        {
+          name: "SAUVIGNON BLANC",
+          description:
+            "Sauvignon Blanc is an international white grape variety...",
+          shortDesc: "Crisp & Refreshing",
+          price: "RS:1500",
+          image: "{% static 'images/sauvignon_bottle.png' %}",
+          bg: "linear-gradient(to right, #fffbc0, #ffe681)",
+          thumbs: [1, 2],
+        },
+        {
+          name: "MARAFIANCE",
+          description:
+            "Marafiance is a refreshing rosé wine with vibrant notes of strawberries, raspberries, and citrus. Perfect for warm summer days, this wine offers a delicate balance between fruitiness and crisp acidity, making it an excellent companion for salads, light pasta, and grilled vegetables.",
+          shortDesc: "Crisp & Refreshing",
+          price: "RS:1500",
+          image: "{% static 'images/rose_bottle.png' %}",
+          bg: "linear-gradient(to right, #ffc6c6, #f27d7d)",
+          thumbs: [0, 2],
+        },
+        {
+          name: "WHITE VINTAGE",
+          description:
+            "White Vintage is crafted with delicacy and sophistication, featuring elegant aromas of white flowers, pear, and honey. The palate reveals layers of ripe stone fruits balanced by refreshing minerality, culminating in a long, satisfying finish. Ideal with creamy sauces and rich seafood.",
+          shortDesc: "Crisp & Refreshing",
+          price: "RS:1800",
+          image: "{% static 'images/whitewine_bottle.png' %}",
+          bg: "linear-gradient(to right, #d4f7c5, #ade792)",
+          thumbs: [0, 1],
+        },
+      ];
+
+      let currentIndex = 0;
+
+      function switchProduct(index) {
+        const product = products[index];
+        const mainImage = document.getElementById("mainWineImage");
+        const productSection = document.getElementById("product");
+        const wineName = document.getElementById("wineName");
+        const wineDesc = document.getElementById("wineDescription");
+        const winePrice = document.getElementById("winePrice");
+        const productTag = document.querySelector(".product-tag");
+        const thumb1 = document.getElementById("thumb1");
+        const thumb2 = document.getElementById("thumb2");
+        if (index === 1) {
+          thumb1.style.filter = "blur(0)";
+          thumb2.style.filter = "blur(2px)";
+        } else if (index === 2) {
+          thumb1.style.filter = "blur(2px)";
+          thumb2.style.filter = "blur(0)";
+        }
+
+        productTag.classList.add("active");
+        document.getElementById("productTagTitle").textContent = product.name;
+        document.getElementById("productTagDesc").textContent =
+          product.shortDesc;
+
+        mainImage.style.opacity = 0;
+
+        setTimeout(() => {
+          wineName.textContent = product.name;
+          wineDesc.textContent = product.description;
+          winePrice.textContent = product.price;
+          mainImage.src = product.image;
+          productSection.style.background = product.bg;
+          mainImage.style.opacity = 1;
+
+          document.getElementById("thumb1").src =
+            products[product.thumbs[0]].image;
+          document.getElementById("thumb1").onclick = () =>
+            switchProduct(product.thumbs[0]);
+
+          document.getElementById("thumb2").src =
+            products[product.thumbs[1]].image;
+          document.getElementById("thumb2").onclick = () =>
+            switchProduct(product.thumbs[1]);
+
+          currentIndex = index;
+        }, 300);
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        const thumb1 = document.getElementById("thumb1");
+        const thumb2 = document.getElementById("thumb2");
+        thumb1.style.filter = "blur(0)";
+        thumb2.style.filter = "blur(2px)";
+        document.querySelector(".product-tag").classList.add("active");
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const targetId = this.getAttribute("href");
+          const targetElement = document.querySelector(targetId);
+
+          if (targetElement) {
+            const navbarCollapse = document.querySelector(".navbar-collapse");
+            if (navbarCollapse.classList.contains("show")) {
+              const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+              bsCollapse.hide();
+            }
+
+            window.scrollTo({
+              top: targetElement.offsetTop - 70,
+              behavior: "smooth",
+            });
+
+            window.addEventListener("scroll", function () {
+              const sections = document.querySelectorAll("section");
+              const navLinks = document.querySelectorAll(
+                ".navbar-nav .nav-link"
+              );
+
+              sections.forEach((section) => {
+                const top = window.scrollY;
+                const offset = section.offsetTop - 100;
+                const height = section.offsetHeight;
+                const id = section.getAttribute("id");
+
+                if (top >= offset && top < offset + height) {
+                  navLinks.forEach((link) => {
+                    link.classList.remove("active");
+                    if (link.getAttribute("href") === `#${id}`) {
+                      link.classList.add("active");
+                    }
+                  });
+                }
+              });
+            });
+          }
+        });
+      });
+      document.querySelectorAll(".navbar-nav .nav-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          const navbarCollapse = document.querySelector(".navbar-collapse");
+          if (navbarCollapse.classList.contains("show")) {
+            new bootstrap.Collapse(navbarCollapse).hide();
+          }
+        });
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.innerWidth > 992) return;
+
+        const container = document.getElementById("floating-bottles-container");
+        const bottleCount = 6;
+        const bottleImages = [
+          '{% static "images/bg1.png" %}',
+          '{% static "images/bg2.png" %}',
+          '{% static "images/bg3.png" %}',
+          '{% static "images/bg4.png" %}',
+          '{% static "images/bg5.png" %}',
+          '{% static "images/bg6" %}',
+        ];
+        r;
+        container.style.position = "fixed";
+        container.style.top = "0";
+        container.style.left = "0";
+        container.style.width = "100vw";
+        container.style.height = "100vh";
+        container.style.pointerEvents = "none";
+        container.style.zIndex = "0";
+        container.style.overflow = "hidden";
+
+        for (let i = 0; i < bottleCount; i++) {
+          const bottle = document.createElement("img");
+          bottle.src = bottleImages[i];
+          bottle.style.position = "absolute";
+          bottle.style.width = `${10 + Math.random() * 15}vw`;
+          bottle.style.opacity = "0.15";
+          bottle.style.filter = "brightness(0.8)";
+          bottle.style.left = `${Math.random() * 100}vw`;
+          bottle.style.top = `${Math.random() * 100}vh`;
+          container.appendChild(bottle);
+
+          animateBottle(bottle);
+        }
+
+        function animateBottle(bottle) {
+          const duration = 20000 + Math.random() * 20000;
+          const startX = Math.random() * 100;
+          const startY = Math.random() * 100;
+
+          const keyframes = [
+            {
+              transform: `translate(${startX}vw, ${startY}vh) rotate(0deg)`,
+              opacity: 0,
+            },
+            {
+              transform: `translate(${startX + (Math.random() * 60 - 30)}vw, ${
+                startY + (Math.random() * 40 - 20)
+              }vh) rotate(${Math.random() * 360}deg)`,
+              opacity: 0.15,
+            },
+            {
+              transform: `translate(${startX + (Math.random() * 60 - 30)}vw, ${
+                startY + (Math.random() * 40 - 20)
+              }vh) rotate(${Math.random() * 720}deg)`,
+              opacity: 0,
+            },
+          ];
+
+          bottle.animate(keyframes, {
+            duration: duration,
+            iterations: Infinity,
+            easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          });
+        }
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const bottlos = document.querySelectorAll(".bottlo");
+        let animationComplete = false;
+
+        function animatebottlos() {
+          animationComplete = false;
+
+          bottlos.forEach((bottlo, index) => {
+            const delay = parseFloat(bottlo.getAttribute("data-delay"));
+            const image = bottlo.getAttribute("data-image");
+
+            bottlo.style.backgroundImage = `url(${image})`;
+
+            setTimeout(() => {
+              bottlo.style.opacity = "1";
+              bottlo.style.transform = "translateY(0) rotate(0)";
+
+              if (index === bottlos.length - 1) {
+                animationComplete = true;
+                startFloatingAnimation();
+              }
+            }, delay * 1000);
+          });
+        }
+
+        function startFloatingAnimation() {
+          bottlos.forEach((bottlo) => {
+            const delay = Math.random() * 1000;
+
+            setTimeout(() => {
+              bottlo.classList.add("float1");
+            }, delay);
+          });
+        }
+
+        setTimeout(animatebottlos, 500);
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const bottleSound = document.getElementById("bottleSound");
+
+        function playBottleSound() {
+          bottleSound.currentTime = 0;
+          bottleSound.volume = 0.3;
+          bottleSound
+            .play()
+            .catch((e) => console.log("Audio play prevented:", e));
+        }
+
+        function animatePyramid() {
+          const bottles = document.querySelectorAll(".bottlo");
+          let soundDelay = 0;
+
+          bottles.forEach((bottle, index) => {
+            const delay = index * 100;
+
+            setTimeout(() => {
+              bottle.style.opacity = "1";
+              bottle.style.transform = "translateY(0) rotate(0deg)";
+
+              if (index % 2 === 0) {
+                setTimeout(playBottleSound, soundDelay);
+                soundDelay += 50;
+              }
+            }, delay);
+          });
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (entries[0].isIntersecting) {
+              animatePyramid();
+              observer.unobserve(entries[0].target); // Only animate once
+            }
+          },
+          { threshold: 0.5 }
+        );
+
+        const pyramidContainer = document.querySelector(".containero");
+        if (pyramidContainer) {
+          observer.observe(pyramidContainer);
+        }
+      });
+    </script>
+  </body>
+</html>

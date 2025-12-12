@@ -1,0 +1,4003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Wine X</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7e1c2f;
+            --primary-light: #9d4354;
+            --primary-dark: #5c1323;
+            --secondary: #2c3e50;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 70px;
+            --header-height: 70px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            color: var(--dark);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            border-right: 1px solid var(--gray-light);
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+            background: var(--primary);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .brand-logo {
+            width: 35px;
+            height: 35px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-text {
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .brand-text {
+            opacity: 0;
+            width: 0;
+            visibility: hidden;
+        }
+
+        .toggle-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1001;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Profile */
+        .profile-section {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-light);
+            background: white;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 auto 15px;
+            border: 3px solid var(--gray-light);
+            transition: var(--transition);
+        }
+
+        .profile-info h5 {
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .profile-info p {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+
+        .sidebar.collapsed .profile-section {
+            padding: 15px 5px;
+        }
+
+        .sidebar.collapsed .profile-avatar {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar.collapsed .profile-info {
+            display: none;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            white-space: nowrap;
+            cursor: pointer;
+            background: white;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .nav-link.active {
+            background: rgba(126, 28, 47, 0.1);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .nav-text {
+            margin-left: 15px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            visibility: hidden;
+            margin-left: 0;
+        }
+
+        .badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            min-width: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .sidebar.collapsed .badge {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 0;
+        }
+
+        /* Tooltip for collapsed sidebar */
+        .sidebar.collapsed .nav-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 1001;
+            pointer-events: none;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar.collapsed .nav-link:hover::after {
+            opacity: 1;
+            visibility: visible;
+            left: calc(100% + 10px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* Header */
+        .main-header {
+            background: white;
+            height: var(--header-height);
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .page-title h1 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .page-title p {
+            color: var(--gray);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Content Area */
+        .content-section {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.pending { border-left-color: var(--warning); }
+        .stat-card.preparing { border-left-color: var(--info); }
+        .stat-card.ready { border-left-color: var(--success); }
+        .stat-card.completed { border-left-color: var(--gray); }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-card.pending .stat-icon { background: var(--warning); }
+        .stat-card.preparing .stat-icon { background: var(--info); }
+        .stat-card.ready .stat-icon { background: var(--success); }
+        .stat-card.completed .stat-icon { background: var(--gray); }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .stat-info p {
+            color: var(--gray);
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Manual Billing Modal - Full Screen */
+        .billing-modal-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+        }
+
+        .billing-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .billing-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .billing-body {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Products Grid for Billing */
+        .products-grid-billing {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .product-card-billing {
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius);
+            padding: 15px;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card-billing:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .product-card-billing.active {
+            border-color: var(--primary);
+            background: rgba(126, 28, 47, 0.05);
+        }
+
+        .product-id-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .product-content {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .product-image-small {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius);
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .product-image-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius);
+        }
+
+        .product-image-small i {
+            font-size: 2rem;
+            color: var(--gray);
+        }
+
+        .product-info h6 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .product-info .category {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .product-stock {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .stock-available { color: var(--success); }
+        .stock-low { color: var(--warning); }
+        .stock-out { color: var(--danger); }
+
+        /* Item Input Group - Compact */
+        .item-input-group-compact {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        /* Orders Section */
+        .filters-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .order-card.pending { border-left-color: var(--warning); }
+        .order-card.preparing { border-left-color: var(--info); }
+        .order-card.ready { border-left-color: var(--success); }
+        .order-card.completed { border-left-color: var(--gray); }
+        .order-card.cancelled { border-left-color: var(--danger); }
+
+        .order-header {
+            padding: 15px;
+            background: var(--gray-light);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-number {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .order-token {
+            background: var(--dark);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .order-body {
+            padding: 15px;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .customer-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .order-items {
+            margin: 12px 0;
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 0.9rem;
+        }
+
+        .order-footer {
+            padding: 12px 15px;
+            background: var(--gray-light);
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Products Section */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        .product-id {
+            background: var(--primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Customers Section */
+        .customers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .customer-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        /* Reports Section */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gray-light);
+            margin-bottom: 20px;
+        }
+
+        /* Pagination */
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        /* Billing Actions */
+        .billing-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .products-grid-billing {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .main-content.expanded {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .orders-grid, .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+
+            .item-input-group-compact {
+                grid-template-columns: 1fr;
+            }
+            
+            .billing-body {
+                padding: 15px;
+            }
+            
+            .products-grid-billing {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .orders-grid, .products-grid, .customers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-group {
+                grid-template-columns: 1fr;
+            }
+
+            .main-header {
+                padding: 0 15px;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: var(--header-height);
+                padding: 10px 15px;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .content-section {
+                padding: 15px;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .billing-actions {
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                flex-direction: column;
+            }
+            
+            .billing-actions .btn {
+                width: 100%;
+            }
+            
+            .products-grid-billing {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .product-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .products-grid-billing {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-actions .btn .d-none {
+                display: inline !important;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        /* Status badges */
+        .badge-pending { background-color: var(--warning); }
+        .badge-preparing { background-color: var(--info); }
+        .badge-ready { background-color: var(--success); }
+        .badge-completed { background-color: var(--gray); }
+        .badge-cancelled { background-color: var(--danger); }
+        
+        /* Product Categories */
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .category-whisky { background: #8B4513; color: white; }
+        .category-vodka { background: #4682B4; color: white; }
+        .category-beer { background: #FFD700; color: #333; }
+        .category-wine { background: #8B0000; color: white; }
+        .category-rum { background: #D2691E; color: white; }
+        .category-gin { background: #87CEEB; color: #333; }
+        .category-tequila { background: #32CD32; color: white; }
+
+
+        /* Fix for print modal overlay */
+    .modal-backdrop {
+        opacity: 0.5 !important;
+        background-color: #000 !important;
+    }
+
+    .modal.show {
+        opacity: 1 !important;
+    }
+
+    .modal-content {
+        background-color: white !important;
+        opacity: 1 !important;
+    }
+
+    /* Print-specific styles */
+    @media print {
+        /* Hide everything except the print content */
+        body * {
+            visibility: hidden;
+        }
+        
+        /* Show only the print modal content */
+        .modal.show .modal-content,
+        .modal.show .modal-content * {
+            visibility: visible;
+        }
+        
+        /* Position the modal content for printing */
+        .modal.show {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            display: block !important;
+        }
+        
+        .modal.show .modal-dialog {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        
+        .modal.show .modal-content {
+            border: none !important;
+            box-shadow: none !important;
+            min-height: 100vh !important;
+            background: white !important;
+        }
+        
+        .modal.show .modal-header,
+        .modal.show .modal-footer {
+            display: none !important;
+        }
+        
+        .modal.show .modal-body {
+            padding: 20px !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Ensure print content uses full width */
+        #printContent {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+        
+        #printContent > div {
+            width: 100% !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+            padding: 20px !important;
+            font-family: 'Courier New', monospace !important;
+            background: white !important;
+        }
+        
+        /* Prevent page breaks inside receipt */
+        #printContent > div {
+            page-break-inside: avoid !important;
+        }
+        
+        /* Hide scrollbars in print */
+        body {
+            overflow: visible !important;
+        }
+        
+        .modal-backdrop {
+            display: none !important;
+        }
+    }
+
+    /* Fix for billing modal opacity */
+    .billing-modal-fullscreen {
+        background: white !important;
+        opacity: 1 !important;
+    }
+
+    /* Ensure modals are properly layered */
+    .modal {
+        z-index: 1050 !important;
+    }
+    
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+
+    /* Fix for print button */
+    .print-button {
+        position: relative;
+        z-index: 1060;
+    }
+
+    /* Receipt print optimization */
+    .receipt-print {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Courier New', monospace;
+        background: white;
+    }
+    
+    .receipt-print * {
+        box-sizing: border-box;
+    }
+    
+    .receipt-print table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .receipt-print table th,
+    .receipt-print table td {
+        padding: 5px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .receipt-print .total-row {
+        border-top: 2px solid #000;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    /* Status button styles */
+.status-btn-group {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.status-btn-group .btn {
+    flex: 1;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+/* Order footer improvements */
+.order-footer .d-flex {
+    gap: 8px;
+}
+
+.order-footer .btn {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="brand" onclick="loadSection('dashboard')">
+                    <div class="brand-logo">
+                        <i class="fas fa-wine-glass-alt"></i>
+                    </div>
+                    <span class="brand-text">Wine X Staff</span>
+                </a>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- Profile -->
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div class="profile-info">
+                    <h5>{{ request.user.get_full_name|default:request.user.username }}</h5>
+                    <p>Staff Member</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="loadSection('dashboard')" data-tooltip="Dashboard">
+                        <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="loadSection('orders')" data-tooltip="All Orders">
+                        <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span>
+                        <span class="nav-text">Orders</span>
+                        <span class="badge bg-primary text-white" id="ordersBadge">{{ all_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showManualBillingFullscreen()" data-tooltip="Manual Billing">
+                        <span class="nav-icon"><i class="fas fa-cash-register"></i></span>
+                        <span class="nav-text">Manual Billing</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="loadSection('products')" data-tooltip="Products">
+                        <span class="nav-icon"><i class="fas fa-wine-bottle"></i></span>
+                        <span class="nav-text">Products</span>
+                        <span class="badge bg-success text-white" id="productsBadge">{{ products_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="loadSection('customers')" data-tooltip="Customers">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">Customers</span>
+                        <span class="badge bg-info text-white" id="customersBadge">{{ customers_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="loadSection('reports')" data-tooltip="Today's Report">
+                        <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                        <span class="nav-text">Today's Report</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'tv_display' %}" class="nav-link" target="_blank" data-tooltip="TV Display">
+                        <span class="nav-icon"><i class="fas fa-tv"></i></span>
+                        <span class="nav-text">TV Display</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'staff_logout' %}" class="nav-link" data-tooltip="Logout"
+                       onclick="return confirm('Are you sure you want to logout?')">
+                        <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span class="nav-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="mobile-toggle" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1 id="pageTitle">Dashboard</h1>
+                        <p id="pageSubtitle">Welcome to Wine X Staff Portal</p>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="loadSection('orders')">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>View Orders</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="showManualBillingFullscreen()">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Manual Bill</span>
+                    </button>
+                    <a href="{% url 'tv_display' %}" class="btn btn-info" target="_blank">
+                        <i class="fas fa-tv"></i>
+                        <span>TV Display</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="content-section active">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card pending" onclick="loadSection('orders', 'pending')">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingCount">{{ pending_count }}</h3>
+                            <p>Pending Orders</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card preparing" onclick="loadSection('orders', 'preparing')">
+                        <div class="stat-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="preparingCount">{{ preparing_count }}</h3>
+                            <p>Preparing Orders</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card ready" onclick="loadSection('orders', 'ready')">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="readyCount">{{ ready_count }}</h3>
+                            <p>Ready for Pickup</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card completed" onclick="loadSection('orders', 'completed')">
+                        <div class="stat-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="completedCount">{{ completed_count }}</h3>
+                            <p>Completed Orders</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Orders</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="refreshRecentOrders()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentOrders" class="orders-grid">
+                            {% for order in recent_orders %}
+                            <div class="order-card {{ order.status }}">
+                                <div class="order-header">
+                                    <div class="order-number">
+                                        ORD-{{ order.id.hex|slice:":8"|upper }}
+                                    </div>
+                                    {% if order.token_number %}
+                                    <div class="order-token">
+                                        #{{ order.token_number }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="order-body">
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">
+                                            {% if order.user %}
+                                                {{ order.user.username|first|upper }}
+                                            {% else %}
+                                                G
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                {% if order.user %}
+                                                    {{ order.user.get_full_name|default:order.user.username|truncatechars:20 }}
+                                                {% else %}
+                                                    Guest Customer
+                                                {% endif %}
+                                            </h6>
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fas fa-phone me-1"></i>{{ order.phone_number|truncatechars:15 }}
+                                            </p>
+                                        </div>
+                                        <span class="badge {% if order.order_type == 'delivery' %}bg-info{% else %}bg-secondary{% endif %} small">
+                                            {{ order.order_type|title }}
+                                        </span>
+                                    </div>
+                                    <div class="order-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Total</span>
+                                            <span class="detail-value">₹{{ order.total_amount }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Status</span>
+                                            <span class="detail-value">
+                                                <span class="badge badge-{{ order.status }}">
+                                                    {{ order.get_status_display }}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Items</span>
+                                            <span class="detail-value">{{ order.items.count }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Time</span>
+                                            <span class="detail-value">{{ order.created_at|time:"H:i" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="order-footer">
+                                    <button class="btn btn-sm btn-primary" onclick="viewOrder('{{ order.id }}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="printOrderReceipt('{{ order.id }}')">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No Recent Orders</h4>
+                                <p class="text-muted">No orders placed recently.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="ordersSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-shopping-cart me-2"></i>Manage Orders</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshOrders()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-outline-success" onclick="printAllReadyOrders()">
+                            <i class="fas fa-print"></i> Print Ready
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Orders Filters -->
+                <div class="filters-card">
+                    <div class="filter-group">
+                        <div>
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="statusFilter" onchange="filterOrders()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="preparing">Preparing</option>
+                                <option value="ready">Ready</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Order Type</label>
+                            <select class="form-select" id="typeFilter" onchange="filterOrders()">
+                                <option value="all">All Types</option>
+                                <option value="delivery">Home Delivery</option>
+                                <option value="pickup">Pickup from Store</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Date</label>
+                            <select class="form-select" id="dateFilter" onchange="filterOrders()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="week">Last 7 Days</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Search</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search by phone, token, name..." 
+                                       id="searchInput" onkeyup="filterOrders()">
+                                <button class="btn btn-outline-secondary" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Grid -->
+                <div id="ordersContainer" class="orders-grid">
+                    <!-- Orders will be loaded dynamically -->
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center" id="ordersPagination">
+                        <!-- Pagination will be loaded dynamically -->
+                    </ul>
+                </nav>
+            </section>
+
+            <!-- Products Section -->
+            <section id="productsSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-wine-bottle me-2"></i>Manage Products</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshProducts()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="productsContainer" class="products-grid">
+                    <!-- Products will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Customers Section -->
+            <section id="customersSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-users me-2"></i>Manage Customers</h2>
+                    <button class="btn btn-primary" onclick="showAddCustomerModal()">
+                        <i class="fas fa-plus"></i> Add Customer
+                    </button>
+                </div>
+
+                <!-- Customers Grid -->
+                <div id="customersContainer" class="customers-grid">
+                    <!-- Customers will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reportsSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-chart-bar me-2"></i>Today's Report</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="exportReport('daily')">
+                            <i class="fas fa-download"></i> Daily
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportReport('weekly')">
+                            <i class="fas fa-download"></i> Weekly
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportReport('monthly')">
+                            <i class="fas fa-download"></i> Monthly
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reports Grid -->
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h5><i class="fas fa-shopping-cart me-2"></i>Sales Overview</h5>
+                        <div id="salesChart" style="height: 300px;">
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <p>Sales chart will be displayed here</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <h5><i class="fas fa-calendar me-2"></i>Today's Summary</h5>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total Orders:</span>
+                                <strong id="todayOrders">{{ today_orders }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total Revenue:</span>
+                                <strong id="todayRevenue">₹{{ total_revenue }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Average Order:</span>
+                                <strong id="avgOrderValue">
+                                    {% if today_orders > 0 %}
+                                        ₹{{ total_revenue|floatformat:2 }}
+                                    {% else %}
+                                        ₹0
+                                    {% endif %}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Manual Billing Fullscreen -->
+    <div id="manualBillingFullscreen" class="billing-modal-fullscreen" style="display: none;">
+        <div class="billing-header">
+            <h3><i class="fas fa-cash-register me-2"></i>Manual Billing - Cash Payment</h3>
+            <button class="btn btn-light" onclick="closeManualBilling()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+        
+        <div class="billing-body">
+            <!-- Customer Information -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Customer Name</label>
+                    <input type="text" class="form-control" id="customerName" 
+                           placeholder="Enter customer name (optional)">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="customerPhone" 
+                           placeholder="Enter phone number (optional)">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Search Products</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="productSearchBilling" 
+                               placeholder="Search by name, category or ID...">
+                        <button class="btn btn-outline-secondary" onclick="clearBillingSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid for Billing -->
+            <div class="mb-4">
+                <h5 class="mb-3">Select Products</h5>
+                <div id="productsBillingGrid" class="products-grid-billing">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Selected Product Details -->
+            <div class="card mb-4" id="selectedProductCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">Add to Bill</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Product</label>
+                            <input type="text" class="form-control" id="selectedProductName" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Price (₹)</label>
+                            <input type="text" class="form-control" id="selectedProductPrice" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="selectedProductQuantity" 
+                                   min="1" value="1" step="1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Total (₹)</label>
+                            <input type="text" class="form-control" id="selectedProductTotal" readonly value="0.00">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" onclick="addSelectedProductToBill()">
+                                <i class="fas fa-plus me-2"></i> Add to Bill
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Bill Items -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Current Bill Items</h5>
+                    <span class="badge bg-primary" id="billItemsCount">0 items</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Product ID</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billItemsTable">
+                                <tr id="emptyBillMessage">
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                        <p>No items added to the bill yet</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill Summary -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Bill Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span id="billSubtotal">₹0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Tax (5%):</span>
+                                        <span id="billTax">₹0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Discount:</span>
+                                        <div class="input-group input-group-sm" style="width: 200px;">
+                                            <input type="number" class="form-control" id="discountAmount" 
+                                                   placeholder="Amount" min="0" step="0.01" value="0">
+                                            <select class="form-select" id="discountType">
+                                                <option value="amount">₹</option>
+                                                <option value="percent">%</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 total-amount">
+                                        <span class="h5">Grand Total:</span>
+                                        <span id="billGrandTotal" class="h5 text-success">₹0.00</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount Received (₹)</label>
+                                        <input type="number" class="form-control" id="amountReceived" 
+                                               min="0" step="0.01" value="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Change (₹)</label>
+                                        <input type="text" class="form-control" id="amountChange" readonly value="₹0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Billing Actions -->
+        <div class="billing-actions">
+            <button class="btn btn-secondary" onclick="clearBill()">
+                <i class="fas fa-redo me-2"></i> Clear Bill
+            </button>
+            <button class="btn btn-outline-primary" onclick="printBill()">
+                <i class="fas fa-print me-2"></i> Print Bill
+            </button>
+            <button class="btn btn-success" onclick="completePayment()">
+                <i class="fas fa-check-circle me-2"></i> Complete Payment
+            </button>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailContent">
+                    <!-- Order details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="printCurrentOrder()">
+                        <i class="fas fa-print me-1"></i> Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Print Modal -->
+<div class="modal fade" id="printModal" tabindex="-1" aria-labelledby="printModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="printModalLabel">Print Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="printContent" class="p-3">
+                    <!-- Receipt content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="triggerPrint()">
+                    <i class="fas fa-print me-1"></i> Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Product Name *</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category *</label>
+                                <select class="form-control" id="productCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="whisky">Whisky</option>
+                                    <option value="vodka">Vodka</option>
+                                    <option value="beer">Beer</option>
+                                    <option value="wine">Wine</option>
+                                    <option value="rum">Rum</option>
+                                    <option value="gin">Gin</option>
+                                    <option value="tequila">Tequila</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Price (₹) *</label>
+                                <input type="number" class="form-control" id="productPrice" required step="0.01" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Stock Quantity *</label>
+                                <input type="number" class="form-control" id="productStock" required min="0" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" id="productStatus">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentSection = 'dashboard';
+        let currentFilter = 'all';
+        let currentPage = 1;
+        let ordersPerPage = 12;
+        let currentOrderId = null;
+        let billItems = [];
+        let billCounter = 0;
+        let allProducts = [];
+        let allOffers = [];
+        let allCombos = [];
+        let selectedProduct = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateStatsCards();
+            setupKeyboardShortcuts();
+            loadAllProductsForBilling();
+            setupBillingEventListeners();
+
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                toggleSidebar();
+            }
+
+            setInterval(updateDashboardStats, 30000);
+        });
+
+        function setupBillingEventListeners() {
+            // Quantity change listener
+            const quantityInput = document.getElementById('selectedProductQuantity');
+            if (quantityInput) {
+                quantityInput.addEventListener('input', function() {
+                    updateSelectedProductTotal();
+                });
+            }
+            
+            // Discount and amount received listeners
+            const discountAmount = document.getElementById('discountAmount');
+            const discountType = document.getElementById('discountType');
+            const amountReceived = document.getElementById('amountReceived');
+            
+            if (discountAmount) discountAmount.addEventListener('input', calculateTotal);
+            if (discountType) discountType.addEventListener('change', calculateTotal);
+            if (amountReceived) amountReceived.addEventListener('input', calculateChange);
+            
+            // Product search
+            const productSearch = document.getElementById('productSearchBilling');
+            if (productSearch) {
+                productSearch.addEventListener('input', function() {
+                    filterBillingProducts(this.value);
+                });
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleIcon = sidebar.querySelector('.toggle-btn i');
+
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+
+            // Always show the chevron icon clearly
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.className = 'fas fa-chevron-right';
+                toggleIcon.style.opacity = '1';
+                toggleIcon.style.visibility = 'visible';
+            } else {
+                toggleIcon.className = 'fas fa-chevron-left';
+                toggleIcon.style.opacity = '1';
+                toggleIcon.style.visibility = 'visible';
+            }
+
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        function loadSection(section, filter = null) {
+            console.log(`Loading section: ${section}, filter: ${filter}`);
+            
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            const navLinks = { dashboard: 0, orders: 1, products: 3, customers: 4, reports: 5 };
+            if (navLinks[section] !== undefined) {
+                document.querySelectorAll('.nav-link')[navLinks[section]].classList.add('active');
+            }
+
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(section + 'Section').classList.add('active');
+
+            const titles = {
+                dashboard: 'Dashboard',
+                orders: 'Manage Orders',
+                products: 'Manage Products',
+                customers: 'Manage Customers',
+                reports: "Today's Report"
+            };
+
+            const subtitles = {
+                dashboard: 'Welcome to Wine X Staff Portal',
+                orders: 'Track and manage all customer orders',
+                products: 'Manage your product inventory',
+                customers: 'View and manage customer information',
+                reports: 'Sales reports and analytics'
+            };
+
+            document.getElementById('pageTitle').textContent = titles[section];
+            document.getElementById('pageSubtitle').textContent = subtitles[section];
+            currentSection = section;
+
+            switch (section) {
+                case 'dashboard':
+                    updateDashboardStats();
+                    break;
+                case 'orders':
+                    if (filter) {
+                        currentFilter = filter;
+                        document.getElementById('statusFilter').value = filter;
+                        document.getElementById('typeFilter').value = 'all';
+                        document.getElementById('dateFilter').value = 'all';
+                        document.getElementById('searchInput').value = '';
+                        currentPage = 1;
+                    }
+                    loadOrders();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'customers':
+                    loadCustomers();
+                    break;
+                case 'reports':
+                    loadReports();
+                    break;
+            }
+
+            if (window.innerWidth <= 992) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        }
+
+        // MANUAL BILLING FUNCTIONS
+        function showManualBillingFullscreen() {
+            console.log('Opening fullscreen manual billing');
+            const billingSection = document.getElementById('manualBillingFullscreen');
+            billingSection.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Load all products for billing
+            loadProductsForBilling();
+            
+            // Clear any previous selection
+            clearSelectedProduct();
+            clearBill();
+        }
+
+        function closeManualBilling() {
+            if (billItems.length > 0 && !confirm('Are you sure you want to close? Unsaved bill will be lost.')) {
+                return;
+            }
+            
+            const billingSection = document.getElementById('manualBillingFullscreen');
+            billingSection.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Clear bill
+            clearBill();
+            clearSelectedProduct();
+        }
+
+        function loadAllProductsForBilling() {
+            console.log('Loading all products for billing...');
+            
+            // Load regular products
+            fetch('/api/products/all/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load products');
+                    return res.json();
+                })
+                .then(products => {
+                    allProducts = products;
+                    console.log(`Loaded ${products.length} products for billing`);
+                })
+                .catch(error => {
+                    console.error('Error loading products for billing:', error);
+                    showToast('Error', 'Failed to load products', 'danger');
+                });
+            
+            // Load offers
+            fetch('/api/offers/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load offers');
+                    return res.json();
+                })
+                .then(offers => {
+                    allOffers = offers;
+                    console.log(`Loaded ${offers.length} offers`);
+                })
+                .catch(error => {
+                    console.error('Error loading offers:', error);
+                });
+            
+            // Load combos
+            fetch('/api/combos/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load combos');
+                    return res.json();
+                })
+                .then(combos => {
+                    allCombos = combos;
+                    console.log(`Loaded ${combos.length} combos`);
+                })
+                .catch(error => {
+                    console.error('Error loading combos:', error);
+                });
+        }
+
+        function loadProductsForBilling() {
+            const container = document.getElementById('productsBillingGrid');
+            if (!container) return;
+            
+            // Show loading
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading products...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Load products from API
+            fetch('/api/products/all/')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to load products`);
+                    return res.json();
+                })
+                .then(products => {
+                    allProducts = products;
+                    console.log(`Loaded ${products.length} products for billing`);
+                    renderBillingProducts(products);
+                })
+                .catch(error => {
+                    console.error('Error loading products for billing:', error);
+                    container.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Failed to load products. Please try again.
+                                <button class="btn btn-sm btn-outline-danger ms-3" onclick="loadProductsForBilling()">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        function renderBillingProducts(products) {
+            const container = document.getElementById('productsBillingGrid');
+            if (!container) return;
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No products available for billing.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                // Get short ID (first 8 characters)
+                const shortId = product.id ? product.id.substring(0, 8).toUpperCase() : 'N/A';
+                
+                // Determine stock status
+                let stockClass = 'stock-available';
+                let stockText = `Stock: ${product.stock || 0}`;
+                let stockIcon = 'fas fa-check-circle';
+                
+                if (!product.stock || product.stock === 0) {
+                    stockClass = 'stock-out';
+                    stockText = 'Out of Stock';
+                    stockIcon = 'fas fa-times-circle';
+                } else if (product.stock < 10) {
+                    stockClass = 'stock-low';
+                    stockText = `Low Stock: ${product.stock}`;
+                    stockIcon = 'fas fa-exclamation-triangle';
+                }
+                
+                // Get category class
+                const categoryClass = product.category ? `category-${product.category.toLowerCase().replace(/\s+/g, '-')}` : 'category-other';
+                const categoryName = product.category_display || product.category || 'Uncategorized';
+                
+                // Get product image or default icon
+                const productImage = product.image ? 
+                    `<img src="${product.image}" alt="${product.name}" class="img-fluid">` :
+                    `<i class="fas fa-wine-bottle fa-2x text-muted"></i>`;
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card-billing';
+                productCard.dataset.productId = product.id;
+                productCard.dataset.productName = product.name;
+                productCard.dataset.productPrice = product.price;
+                productCard.dataset.productStock = product.stock || 0;
+                productCard.onclick = function() { selectProductForBilling(product); };
+                
+                productCard.innerHTML = `
+                    <span class="product-id-badge">${shortId}</span>
+                    <div class="product-content">
+                        <div class="product-image-small">
+                            ${productImage}
+                        </div>
+                        <div class="product-info">
+                            <h6 class="mb-1">${product.name}</h6>
+                            <div class="mb-1">
+                                <span class="category-badge ${categoryClass}">${categoryName}</span>
+                            </div>
+                            <div class="product-price">₹${parseFloat(product.price || 0).toFixed(2)}</div>
+                            <div class="product-stock ${stockClass}">
+                                <i class="${stockIcon} me-1"></i>${stockText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(productCard);
+            });
+        }
+
+        function filterBillingProducts(searchTerm) {
+            if (!searchTerm.trim()) {
+                if (allProducts.length > 0) {
+                    renderBillingProducts(allProducts);
+                } else {
+                    loadProductsForBilling();
+                }
+                return;
+            }
+            
+            const searchLower = searchTerm.toLowerCase();
+            const filteredProducts = allProducts.filter(product => {
+                return (
+                    (product.name && product.name.toLowerCase().includes(searchLower)) ||
+                    (product.category && product.category.toLowerCase().includes(searchLower)) ||
+                    (product.description && product.description.toLowerCase().includes(searchLower)) ||
+                    (product.id && product.id.toLowerCase().includes(searchLower))
+                );
+            });
+            
+            renderBillingProducts(filteredProducts);
+        }
+
+        function clearBillingSearch() {
+            const searchInput = document.getElementById('productSearchBilling');
+            if (searchInput) {
+                searchInput.value = '';
+                renderBillingProducts(allProducts);
+            }
+        }
+
+        function selectProductForBilling(product) {
+            // Check if product is in stock
+            if (!product.stock || product.stock <= 0) {
+                showToast('Error', 'This product is out of stock', 'warning');
+                return;
+            }
+            
+            selectedProduct = product;
+            
+            // Remove active class from all cards
+            document.querySelectorAll('.product-card-billing').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to selected card
+            const selectedCard = document.querySelector(`.product-card-billing[data-product-id="${product.id}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+            
+            // Update selected product card
+            const selectedProductCard = document.getElementById('selectedProductCard');
+            const productName = document.getElementById('selectedProductName');
+            const productPrice = document.getElementById('selectedProductPrice');
+            
+            if (selectedProductCard && productName && productPrice) {
+                selectedProductCard.style.display = 'block';
+                productName.value = product.name;
+                productPrice.value = parseFloat(product.price || 0).toFixed(2);
+                
+                // Reset quantity to 1
+                const quantityInput = document.getElementById('selectedProductQuantity');
+                if (quantityInput) {
+                    quantityInput.value = 1;
+                    quantityInput.max = product.stock || 1; // Set max to available stock
+                }
+                
+                updateSelectedProductTotal();
+            }
+        }
+
+        function clearSelectedProduct() {
+            selectedProduct = null;
+            document.querySelectorAll('.product-card-billing').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const selectedProductCard = document.getElementById('selectedProductCard');
+            if (selectedProductCard) {
+                selectedProductCard.style.display = 'none';
+            }
+        }
+
+        function updateSelectedProductTotal() {
+            if (!selectedProduct) return;
+            
+            const quantityInput = document.getElementById('selectedProductQuantity');
+            const quantity = parseInt(quantityInput ? quantityInput.value : 1) || 1;
+            const price = parseFloat(selectedProduct.price || 0) || 0;
+            const total = quantity * price;
+            
+            const totalInput = document.getElementById('selectedProductTotal');
+            if (totalInput) {
+                totalInput.value = total.toFixed(2);
+            }
+        }
+
+        function addSelectedProductToBill() {
+            if (!selectedProduct) {
+                showToast('Error', 'Please select a product first', 'warning');
+                return;
+            }
+            
+            const quantityInput = document.getElementById('selectedProductQuantity');
+            const quantity = parseInt(quantityInput ? quantityInput.value : 1) || 1;
+            
+            if (quantity < 1) {
+                showToast('Error', 'Quantity must be at least 1', 'warning');
+                return;
+            }
+            
+            // Check stock availability
+            if (selectedProduct.stock && selectedProduct.stock < quantity) {
+                showToast('Error', `Only ${selectedProduct.stock} items available in stock`, 'danger');
+                
+                // Update quantity input to max available
+                if (quantityInput) {
+                    quantityInput.value = selectedProduct.stock;
+                    quantityInput.max = selectedProduct.stock;
+                    updateSelectedProductTotal();
+                }
+                return;
+            }
+            
+            // Check if product already exists in bill
+            const existingItemIndex = billItems.findIndex(item => item.productId === selectedProduct.id);
+            
+            if (existingItemIndex > -1) {
+                // Update existing item
+                const newQuantity = billItems[existingItemIndex].quantity + quantity;
+                
+                // Check if total quantity exceeds stock
+                if (selectedProduct.stock && newQuantity > selectedProduct.stock) {
+                    showToast('Error', `Cannot add more than available stock (${selectedProduct.stock})`, 'danger');
+                    return;
+                }
+                
+                billItems[existingItemIndex].quantity = newQuantity;
+                billItems[existingItemIndex].total = newQuantity * billItems[existingItemIndex].price;
+            } else {
+                // Add new item
+                const item = {
+                    id: Date.now() + billCounter++,
+                    productId: selectedProduct.id,
+                    name: selectedProduct.name,
+                    productIdShort: selectedProduct.id ? selectedProduct.id.substring(0, 8).toUpperCase() : 'N/A',
+                    quantity: quantity,
+                    price: parseFloat(selectedProduct.price || 0),
+                    total: quantity * parseFloat(selectedProduct.price || 0)
+                };
+                
+                billItems.push(item);
+            }
+            
+            updateBillDisplay();
+            calculateTotal();
+            
+            // Reset selection
+            if (quantityInput) {
+                quantityInput.value = 1;
+            }
+            updateSelectedProductTotal();
+            
+            showToast('Success', 'Product added to bill', 'success');
+        }
+
+        function updateBillDisplay() {
+            const billItemsTable = document.getElementById('billItemsTable');
+            const billItemsCount = document.getElementById('billItemsCount');
+            
+            if (!billItemsTable) return;
+            
+            const emptyMessage = document.getElementById('emptyBillMessage');
+            
+            if (billItems.length === 0) {
+                if (!emptyMessage) {
+                    billItemsTable.innerHTML = `
+                        <tr id="emptyBillMessage">
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                <p>No items added to the bill yet</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                if (billItemsCount) {
+                    billItemsCount.textContent = '0 items';
+                }
+                return;
+            }
+
+            // Remove empty message if exists
+            if (emptyMessage) {
+                emptyMessage.remove();
+            }
+
+            let html = '';
+            let totalAmount = 0;
+            
+            billItems.forEach((item, index) => {
+                totalAmount += item.total;
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td><span class="badge bg-secondary">${item.productIdShort}</span></td>
+                        <td>₹${item.price.toFixed(2)}</td>
+                        <td>
+                            <div class="input-group input-group-sm" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" onclick="updateBillItemQuantity('${item.id}', -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="form-control text-center" 
+                                    value="${item.quantity}" min="1" 
+                                    onchange="updateBillItemQuantityInput('${item.id}', this.value)">
+                                <button class="btn btn-outline-secondary" onclick="updateBillItemQuantity('${item.id}', 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>₹${item.total.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeBillItem('${item.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            billItemsTable.innerHTML = html;
+            
+            if (billItemsCount) {
+                billItemsCount.textContent = `${billItems.length} item${billItems.length !== 1 ? 's' : ''}`;
+            }
+        }
+
+        function updateBillItemQuantity(itemId, change) {
+            const item = billItems.find(i => i.id === itemId);
+            if (item) {
+                const newQuantity = Math.max(1, item.quantity + change);
+                
+                // Check stock for the original product
+                const product = allProducts.find(p => p.id === item.productId);
+                if (product && product.stock && product.stock < newQuantity) {
+                    showToast('Error', `Only ${product.stock} items available in stock`, 'danger');
+                    return;
+                }
+                
+                item.quantity = newQuantity;
+                item.total = newQuantity * item.price;
+                updateBillDisplay();
+                calculateTotal();
+            }
+        }
+
+        function updateBillItemQuantityInput(itemId, newQuantity) {
+            const quantity = parseInt(newQuantity) || 1;
+            const item = billItems.find(i => i.id === itemId);
+            if (item) {
+                // Check stock
+                const product = allProducts.find(p => p.id === item.productId);
+                if (product && product.stock && product.stock < quantity) {
+                    showToast('Error', `Only ${product.stock} items available in stock`, 'danger');
+                    return;
+                }
+                
+                item.quantity = Math.max(1, quantity);
+                item.total = item.quantity * item.price;
+                updateBillDisplay();
+                calculateTotal();
+            }
+        }
+
+        function removeBillItem(itemId) {
+            billItems = billItems.filter(item => item.id !== itemId);
+            updateBillDisplay();
+            calculateTotal();
+            showToast('Info', 'Item removed from bill', 'info');
+        }
+
+        function calculateTotal() {
+            const subtotal = billItems.reduce((sum, item) => sum + item.total, 0);
+            const tax = subtotal * 0.05; // 5% tax
+            const discountAmountElement = document.getElementById('discountAmount');
+            const discountTypeElement = document.getElementById('discountType');
+            
+            const discountAmount = discountAmountElement ? parseFloat(discountAmountElement.value) || 0 : 0;
+            const discountType = discountTypeElement ? discountTypeElement.value : 'amount';
+            
+            let discount = 0;
+            if (discountType === 'amount') {
+                discount = Math.min(discountAmount, subtotal + tax);
+            } else if (discountType === 'percent') {
+                discount = (subtotal + tax) * (discountAmount / 100);
+            }
+            
+            const grandTotal = subtotal + tax - discount;
+            
+            const billSubtotalElement = document.getElementById('billSubtotal');
+            const billTaxElement = document.getElementById('billTax');
+            const billGrandTotalElement = document.getElementById('billGrandTotal');
+            
+            if (billSubtotalElement) billSubtotalElement.textContent = `₹${subtotal.toFixed(2)}`;
+            if (billTaxElement) billTaxElement.textContent = `₹${tax.toFixed(2)}`;
+            if (billGrandTotalElement) billGrandTotalElement.textContent = `₹${grandTotal.toFixed(2)}`;
+            
+            calculateChange();
+        }
+
+        function calculateChange() {
+            const billGrandTotalElement = document.getElementById('billGrandTotal');
+            const amountReceivedElement = document.getElementById('amountReceived');
+            const amountChangeElement = document.getElementById('amountChange');
+            
+            if (!billGrandTotalElement || !amountReceivedElement || !amountChangeElement) return;
+            
+            const grandTotal = parseFloat(billGrandTotalElement.textContent.replace('₹', '')) || 0;
+            const amountReceived = parseFloat(amountReceivedElement.value) || 0;
+            const change = Math.max(0, amountReceived - grandTotal);
+            
+            amountChangeElement.value = `₹${change.toFixed(2)}`;
+        }
+
+        function clearBill() {
+            if (billItems.length > 0 && !confirm('Are you sure you want to clear the current bill?')) {
+                return;
+            }
+            
+            billItems = [];
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('discountAmount').value = '0';
+            document.getElementById('amountReceived').value = '0';
+            document.getElementById('productSearchBilling').value = '';
+            
+            updateBillDisplay();
+            calculateTotal();
+            clearSelectedProduct();
+            renderBillingProducts(allProducts);
+            
+            showToast('Info', 'Bill cleared successfully', 'info');
+        }
+
+    // Update the printBill function to accept token
+    function printBillWithToken(tokenNumber = null) {
+        if (billItems.length === 0) {
+            showToast('Error', 'No items in the bill to print', 'warning');
+            return;
+        }
+
+        const customerName = document.getElementById('customerName').value || 'Walk-in Customer';
+        const customerPhone = document.getElementById('customerPhone').value || '';
+        const subtotal = parseFloat(document.getElementById('billSubtotal').textContent.replace('₹', '')) || 0;
+        const tax = parseFloat(document.getElementById('billTax').textContent.replace('₹', '')) || 0;
+        const grandTotal = parseFloat(document.getElementById('billGrandTotal').textContent.replace('₹', '')) || 0;
+        const discountAmount = parseFloat(document.getElementById('discountAmount').value) || 0;
+        const discountType = document.getElementById('discountType').value;
+        const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+        const change = Math.max(0, amountReceived - grandTotal);
+
+        // Generate bill number
+        const billNumber = `BILL-${Date.now().toString().slice(-6)}`;
+        const currentDate = new Date();
+        
+        // Token display
+        const tokenDisplay = tokenNumber ? 
+            `<tr>
+                <td style="padding: 3px 0;"><strong>Token #:</strong></td>
+                <td style="padding: 3px 0;"><strong>#${tokenNumber}</strong></td>
+            </tr>` : '';
+        
+        // Create receipt HTML with token
+        const receiptHtml = `
+            <div class="receipt-print" style="font-family: 'Courier New', monospace; width: 100%; max-width: 400px; margin: 0 auto; background: white;">
+                <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #000;">
+                    <h2 style="margin: 0; color: #7e1c2f; font-size: 24px;">WINE X</h2>
+                    <p style="margin: 5px 0; font-size: 14px;">Wine Shop & Bar</p>
+                    <p style="margin: 5px 0; font-size: 12px;">123 Wine Street, City</p>
+                    <p style="margin: 5px 0; font-size: 12px;">Phone: +91 9876543210</p>
+                    <p style="margin: 5px 0; font-size: 12px;">GSTIN: 27ABCDE1234F1Z5</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <table style="width: 100%; margin-bottom: 10px;">
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Bill #:</strong></td>
+                            <td style="padding: 3px 0;">${billNumber}</td>
+                        </tr>
+                        ${tokenDisplay}
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Date:</strong></td>
+                            <td style="padding: 3px 0;">${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Customer:</strong></td>
+                            <td style="padding: 3px 0;">${customerName}</td>
+                        </tr>
+                        ${customerPhone ? `<tr><td style="padding: 3px 0;"><strong>Phone:</strong></td><td style="padding: 3px 0;">${customerPhone}</td></tr>` : ''}
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Staff:</strong></td>
+                            <td style="padding: 3px 0;">{{ request.user.username }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Payment:</strong></td>
+                            <td style="padding: 3px 0;">Cash</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                ${tokenNumber ? `
+                <div style="text-align: center; margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <h3 style="margin: 5px 0; color: #7e1c2f;">PICKUP TOKEN</h3>
+                    <div style="font-size: 3rem; font-weight: bold; color: #000;">#${tokenNumber}</div>
+                    <p style="margin: 5px 0; font-size: 14px;">Please show this token for pickup</p>
+                </div>
+                ` : ''}
+                
+                <hr style="border-top: 1px dashed #000; margin: 15px 0;">
+                
+                <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; border-bottom: 1px solid #000; padding: 5px 0; font-size: 12px;">Item</th>
+                            <th style="text-align: center; border-bottom: 1px solid #000; padding: 5px 0; font-size: 12px;">Qty</th>
+                            <th style="text-align: right; border-bottom: 1px solid #000; padding: 5px 0; font-size: 12px;">Price</th>
+                            <th style="text-align: right; border-bottom: 1px solid #000; padding: 5px 0; font-size: 12px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${billItems.map((item, index) => `
+                            <tr>
+                                <td style="padding: 5px 0; font-size: 12px;">${item.name}</td>
+                                <td style="text-align: center; padding: 5px 0; font-size: 12px;">${item.quantity}</td>
+                                <td style="text-align: right; padding: 5px 0; font-size: 12px;">₹${item.price.toFixed(2)}</td>
+                                <td style="text-align: right; padding: 5px 0; font-size: 12px;">₹${item.total.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                
+                <hr style="border-top: 1px dashed #000; margin: 15px 0;">
+                
+                <table style="width: 100%; margin-top: 20px;">
+                    <tr>
+                        <td style="padding: 3px 0; text-align: right;"><strong>Subtotal:</strong></td>
+                        <td style="padding: 3px 0; text-align: right; width: 100px;">₹${subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; text-align: right;"><strong>Tax (5%):</strong></td>
+                        <td style="padding: 3px 0; text-align: right;">₹${tax.toFixed(2)}</td>
+                    </tr>
+                    ${discountAmount > 0 ? `
+                        <tr>
+                            <td style="padding: 3px 0; text-align: right;"><strong>Discount:</strong></td>
+                            <td style="padding: 3px 0; text-align: right;">
+                                ₹${discountAmount.toFixed(2)} ${discountType === 'percent' ? `(${discountAmount}%)` : ''}
+                            </td>
+                        </tr>
+                    ` : ''}
+                    <tr class="total-row" style="border-top: 2px solid #000; padding-top: 5px;">
+                        <td style="padding: 8px 0; text-align: right; font-weight: bold; font-size: 16px;"><strong>Total:</strong></td>
+                        <td style="padding: 8px 0; text-align: right; font-weight: bold; font-size: 16px;">₹${grandTotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; text-align: right;"><strong>Amount Received:</strong></td>
+                        <td style="padding: 3px 0; text-align: right;">₹${amountReceived.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; text-align: right;"><strong>Change:</strong></td>
+                        <td style="padding: 3px 0; text-align: right;">₹${change.toFixed(2)}</td>
+                    </tr>
+                </table>
+                
+                ${tokenNumber ? `
+                <div style="text-align: center; margin: 20px 0; padding: 10px; border: 2px dashed #7e1c2f; border-radius: 10px;">
+                    <h4 style="margin: 5px 0; color: #7e1c2f;">FOR PICKUP</h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: #000; margin: 10px 0;">TOKEN: #${tokenNumber}</div>
+                    <p style="margin: 5px 0; font-size: 12px;">Present this receipt for order collection</p>
+                </div>
+                ` : ''}
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #000;">
+                    <p style="font-size: 14px; margin: 5px 0;">Thank you for your purchase!</p>
+                    <p style="font-size: 12px; margin: 5px 0;">Please visit again!</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #666;">
+                    <p style="margin: 2px 0;">This is a computer generated receipt</p>
+                    <p style="margin: 2px 0;">Printed: ${currentDate.toLocaleString()}</p>
+                </div>
+            </div>
+        `;
+
+        const printContent = document.getElementById('printContent');
+        if (printContent) {
+            printContent.innerHTML = receiptHtml;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('printModal'));
+            modal.show();
+            
+            // Auto-print after 1 second
+            setTimeout(() => {
+                triggerPrint();
+            }, 1000);
+        }
+    }
+
+    // Keep the original printBill function for other uses
+    function printBill() {
+        printBillWithToken();
+    }
+
+
+    function setupPrintModal() {
+        const printModal = document.getElementById('printModal');
+        if (printModal) {
+            printModal.addEventListener('show.bs.modal', function () {
+                // Ensure modal is properly positioned for printing
+                const modalBody = printModal.querySelector('.modal-body');
+                if (modalBody) {
+                    modalBody.style.overflow = 'visible';
+                    modalBody.style.maxHeight = 'none';
+                }
+            });
+            
+            printModal.addEventListener('hidden.bs.modal', function () {
+                // Reset modal state when hidden
+                const modalBody = printModal.querySelector('.modal-body');
+                if (modalBody) {
+                    modalBody.style.overflow = 'auto';
+                }
+            });
+        }
+    }
+
+    function triggerPrint() {
+        // Hide modal footer before printing
+        const modalFooter = document.querySelector('#printModal .modal-footer');
+        const originalDisplay = modalFooter.style.display;
+        modalFooter.style.display = 'none';
+        
+        // Hide modal header before printing
+        const modalHeader = document.querySelector('#printModal .modal-header');
+        const originalHeaderDisplay = modalHeader.style.display;
+        modalHeader.style.display = 'none';
+        
+        // Print
+        window.print();
+        
+        // Restore modal elements after printing
+        setTimeout(() => {
+            modalFooter.style.display = originalDisplay;
+            modalHeader.style.display = originalHeaderDisplay;
+        }, 100);
+    }
+
+    // Call this function on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+        setupPrintModal();
+    });
+
+    function completePayment() {
+        if (billItems.length === 0) {
+            showToast('Error', 'No items in the bill', 'warning');
+            return;
+        }
+
+        const customerName = document.getElementById('customerName').value || 'Walk-in Customer';
+        const customerPhone = document.getElementById('customerPhone').value || '';
+        const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+        const grandTotal = parseFloat(document.getElementById('billGrandTotal').textContent.replace('₹', '')) || 0;
+
+        if (amountReceived < grandTotal) {
+            showToast('Error', `Amount received (₹${amountReceived.toFixed(2)}) is less than total (₹${grandTotal.toFixed(2)})`, 'danger');
+            return;
+        }
+
+        // Prepare order data
+        const orderData = {
+            customer_name: customerName,
+            phone_number: customerPhone,
+            order_type: 'pickup', // Always pickup for manual billing
+            payment_method: 'cash',
+            status: 'ready', // Mark as ready immediately for pickup
+            items: billItems.map(item => ({
+                product_id: item.productId,
+                product_name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total
+            })),
+            subtotal: parseFloat(document.getElementById('billSubtotal').textContent.replace('₹', '')),
+            tax: parseFloat(document.getElementById('billTax').textContent.replace('₹', '')),
+            total_amount: grandTotal,
+            amount_received: amountReceived,
+            change_given: amountReceived - grandTotal
+        };
+
+        console.log('Saving manual order:', orderData);
+
+        // Save the order
+        fetch('/api/orders/create-manual/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Manual order response:', data);
+            if (data.success) {
+                // Show success message with token
+                let successMessage = 'Payment completed successfully! Order saved.';
+                if (data.token_number) {
+                    successMessage += ` Token: #${data.token_number}`;
+                }
+                
+                // Store token for receipt
+                const tokenNumber = data.token_number;
+                
+                showToast('Success', successMessage, 'success');
+                
+                // Print receipt with token
+                printBillWithToken(tokenNumber);
+                
+                // Clear bill after successful payment
+                setTimeout(() => {
+                    clearBill();
+                    closeManualBilling();
+                    updateDashboardStats();
+                    // Refresh orders if we're in orders section
+                    if (currentSection === 'orders') {
+                        loadOrders();
+                    }
+                    // Refresh TV display if it's open
+                    refreshTVDisplay();
+                }, 3000);
+            } else {
+                showToast('Error', data.error || 'Failed to save order', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error completing payment:', error);
+            showToast('Error', 'Failed to process payment: ' + error.message, 'danger');
+        });
+    }
+
+
+        // DASHBOARD AND ORDER FUNCTIONS
+        function updateDashboardStats() {
+            console.log('Updating dashboard stats...');
+            fetch('/api/dashboard/stats/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch stats');
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Stats data:', data);
+                    document.getElementById('ordersBadge').textContent = data.total_orders || 0;
+                    if (currentSection === 'dashboard') {
+                        updateStatsCards(data);
+                    }
+                    if (data.products_count !== undefined) {
+                        document.getElementById('productsBadge').textContent = data.products_count;
+                    }
+                    if (data.customers_count !== undefined) {
+                        document.getElementById('customersBadge').textContent = data.customers_count;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating stats:', error);
+                    showToast('Error', 'Failed to update dashboard stats', 'danger');
+                });
+        }
+
+        function updateStatsCards(data = null) {
+            if (!data) {
+                // Use initial template values
+                return;
+            }
+            document.getElementById('pendingCount').textContent = data.pending || 0;
+            document.getElementById('preparingCount').textContent = data.preparing || 0;
+            document.getElementById('readyCount').textContent = data.ready || 0;
+            document.getElementById('completedCount').textContent = data.completed || 0;
+        }
+
+        function loadOrders(page = 1) {
+            console.log(`Loading orders page ${page} with filter ${currentFilter}`);
+            currentPage = page;
+            const status = document.getElementById('statusFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            const search = document.getElementById('searchInput').value;
+
+            let query = `?page=${page}&limit=${ordersPerPage}`;
+            if (status !== 'all') query += `&status=${status}`;
+            if (type !== 'all') query += `&type=${type}`;
+            if (date !== 'all') query += `&date=${date}`;
+            if (search) query += `&search=${encodeURIComponent(search)}`;
+
+            // Show loading
+            const container = document.getElementById('ordersContainer');
+            if (!container) {
+                console.error('Orders container not found!');
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4>Loading orders...</h4>
+                </div>
+            `;
+
+            console.log('Fetching orders from:', `/api/orders/${query}`);
+            
+            fetch(`/api/orders/${query}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: Failed to load orders`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Orders data received:', data);
+                    container.innerHTML = '';
+                    
+                    if (data.orders && data.orders.length > 0) {
+                        data.orders.forEach(order => {
+                            const orderCard = createOrderCard(order);
+                            if (orderCard) {
+                                container.appendChild(orderCard);
+                            }
+                        });
+                        
+                        if (data.total && data.pages && data.current_page) {
+                            updatePagination(data.total, data.pages, data.current_page);
+                        }
+                    } else {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No Orders Found</h4>
+                                <p class="text-muted">No orders match your current filters.</p>
+                                <button class="btn btn-primary mt-2" onclick="resetFilters()">
+                                    <i class="fas fa-redo me-1"></i> Reset Filters
+                                </button>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>Error Loading Orders</h4>
+                            <p class="text-muted">${error.message}</p>
+                            <button class="btn btn-primary mt-2" onclick="loadOrders()">
+                                <i class="fas fa-redo me-1"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function createOrderCard(order) {
+        try {
+            const div = document.createElement('div');
+            
+            // Determine status class
+            let statusClass = '';
+            let statusDisplay = 'Pending';
+            let statusBadgeClass = 'bg-warning';
+            
+            if (order.status) {
+                statusClass = order.status;
+                switch(order.status) {
+                    case 'pending':
+                        statusBadgeClass = 'bg-warning';
+                        statusDisplay = 'Pending';
+                        break;
+                    case 'preparing':
+                        statusBadgeClass = 'bg-info';
+                        statusDisplay = 'Preparing';
+                        break;
+                    case 'ready':
+                        statusBadgeClass = 'bg-success';
+                        statusDisplay = 'Ready';
+                        break;
+                    case 'completed':
+                        statusBadgeClass = 'bg-secondary';
+                        statusDisplay = 'Completed';
+                        break;
+                    case 'cancelled':
+                        statusBadgeClass = 'bg-danger';
+                        statusDisplay = 'Cancelled';
+                        break;
+                }
+            }
+            
+            // Get order ID
+            let orderId = order.id;
+            let orderNumber = '';
+            if (orderId) {
+                if (typeof orderId === 'string') {
+                    orderNumber = orderId.slice(0, 8).toUpperCase();
+                } else if (order.id && order.id.hex) {
+                    orderNumber = order.id.hex.slice(0, 8).toUpperCase();
+                } else {
+                    orderNumber = 'ORD-' + (order.id || 'N/A');
+                }
+            }
+            
+            // Get customer info
+            const customer = order.customer_name || 
+                        (order.user ? (order.user.full_name || order.user.username) : 'Guest Customer') || 
+                        'Guest Customer';
+            const phone = order.phone_number || 'N/A';
+            const total = order.total_amount || 0;
+            const itemsCount = order.items_count || (order.items ? order.items.length : 0);
+            const orderType = order.order_type || 'pickup';
+            const token = order.token_number || '';
+            const createdAt = order.created_at ? new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A';
+            
+            // Generate status change buttons based on current status
+            let statusButtons = '';
+            if (order.status !== 'cancelled' && order.status !== 'completed') {
+                switch(order.status) {
+                    case 'pending':
+                        statusButtons = `
+                            <button class="btn btn-sm btn-info" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                <i class="fas fa-cogs me-1"></i> Start Preparing
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="updateOrderStatus('${order.id}', 'cancelled')">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </button>
+                        `;
+                        break;
+                    case 'preparing':
+                        statusButtons = `
+                            <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id}', 'ready')">
+                                <i class="fas fa-check-circle me-1"></i> Mark Ready
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="updateOrderStatus('${order.id}', 'pending')">
+                                <i class="fas fa-undo me-1"></i> Back to Pending
+                            </button>
+                        `;
+                        break;
+                    case 'ready':
+                        statusButtons = `
+                            <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.id}', 'completed')">
+                                <i class="fas fa-clipboard-check me-1"></i> Complete Order
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                <i class="fas fa-undo me-1"></i> Back to Preparing
+                            </button>
+                        `;
+                        break;
+                }
+            } else if (order.status === 'completed') {
+                statusButtons = `
+                    <button class="btn btn-sm btn-warning" onclick="updateOrderStatus('${order.id}', 'ready')">
+                        <i class="fas fa-redo me-1"></i> Re-open
+                    </button>
+                `;
+            } else if (order.status === 'cancelled') {
+                statusButtons = `
+                    <button class="btn btn-sm btn-warning" onclick="updateOrderStatus('${order.id}', 'pending')">
+                        <i class="fas fa-redo me-1"></i> Re-activate
+                    </button>
+                `;
+            }
+            
+            div.className = `order-card ${statusClass}`;
+            div.innerHTML = `
+                <div class="order-header">
+                    <div class="order-number">ORD-${orderNumber}</div>
+                    ${token ? `<div class="order-token">#${token}</div>` : ''}
+                </div>
+                <div class="order-body">
+                    <div class="customer-info">
+                        <div class="customer-avatar">${customer.charAt(0).toUpperCase()}</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${customer.length > 20 ? customer.substring(0, 20) + '...' : customer}</h6>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-phone me-1"></i>${phone.length > 15 ? phone.substring(0, 15) + '...' : phone}
+                            </p>
+                        </div>
+                        <span class="badge ${orderType === 'delivery' ? 'bg-info' : 'bg-secondary'} small">
+                            ${orderType === 'delivery' ? 'Delivery' : 'Pickup'}
+                        </span>
+                    </div>
+                    <div class="order-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Total</span>
+                            <span class="detail-value">₹${total.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">
+                                <span class="badge ${statusBadgeClass}">${statusDisplay}</span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Items</span>
+                            <span class="detail-value">${itemsCount}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Time</span>
+                            <span class="detail-value">${createdAt}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-primary" onclick="viewOrder('${order.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="printOrderReceipt('${order.id}')">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        ${statusButtons}
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        } catch (error) {
+            console.error('Error creating order card:', error, order);
+            return null;
+        }
+    }
+
+
+    function updateOrderStatus(orderId, newStatus) {
+        const statusMessages = {
+            'pending': 'Pending',
+            'preparing': 'Preparing',
+            'ready': 'Ready',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled'
+        };
+        
+        const confirmationMessages = {
+            'pending': 'move back to pending?',
+            'preparing': 'start preparing this order?',
+            'ready': 'mark this order as ready for pickup?',
+            'completed': 'mark this order as completed?',
+            'cancelled': 'cancel this order?'
+        };
+        
+        if (!confirm(`Are you sure you want to ${confirmationMessages[newStatus]}`)) {
+            return;
+        }
+        
+        // Show loading
+        const orderCard = document.querySelector(`.order-card [onclick*="${orderId}"]`)?.closest('.order-card');
+        if (orderCard) {
+            const footer = orderCard.querySelector('.order-footer');
+            const originalContent = footer.innerHTML;
+            footer.innerHTML = `
+                <div class="text-center py-2">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Updating...</span>
+                    </div>
+                    <p class="small text-muted mt-1 mb-0">Updating status...</p>
+                </div>
+            `;
+        }
+        
+        // Send update request
+        fetch(`/api/orders/${orderId}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                status: newStatus
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('Success', `Order status updated to ${statusMessages[newStatus]}`, 'success');
+                
+                // Reload the orders to reflect the change
+                if (currentSection === 'orders') {
+                    loadOrders(currentPage);
+                }
+                
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Refresh TV display if it's open
+                refreshTVDisplay();
+            } else {
+                showToast('Error', data.error || 'Failed to update status', 'danger');
+                
+                // Restore original footer content
+                if (orderCard && originalContent) {
+                    orderCard.querySelector('.order-footer').innerHTML = originalContent;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error updating order status:', error);
+            showToast('Error', 'Failed to update order status: ' + error.message, 'danger');
+            
+            // Restore original footer content
+            if (orderCard && originalContent) {
+                orderCard.querySelector('.order-footer').innerHTML = originalContent;
+            }
+        });
+    }
+
+    function refreshTVDisplay() {
+        console.log('Order status changed - TV display should be refreshed');
+    }
+
+    function updateStatusAndView(orderId, newStatus) {
+        updateOrderStatus(orderId, newStatus);
+        
+        // Close the modal and refresh view
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('orderDetailModal'));
+            if (modal) modal.hide();
+            setTimeout(() => {
+                viewOrder(orderId); // Re-open with updated status
+            }, 100);
+        }, 1500);
+    }
+
+        function updatePagination(total, pages, current) {
+            const pagination = document.getElementById('ordersPagination');
+            if (!pagination) return;
+            
+            pagination.innerHTML = '';
+            
+            if (pages <= 1) return;
+            
+            if (current > 1) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="loadOrders(${current - 1})">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                `;
+            }
+            
+            for (let i = 1; i <= pages; i++) {
+                if (i === 1 || i === pages || (i >= current - 2 && i <= current + 2)) {
+                    pagination.innerHTML += `
+                        <li class="page-item ${i === current ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadOrders(${i})">${i}</a>
+                        </li>
+                    `;
+                }
+            }
+            
+            if (current < pages) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="loadOrders(${current + 1})">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                `;
+            }
+        }
+
+        function filterOrders() {
+            currentPage = 1;
+            loadOrders();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterOrders();
+        }
+
+        function resetFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('typeFilter').value = 'all';
+            document.getElementById('dateFilter').value = 'all';
+            document.getElementById('searchInput').value = '';
+            currentFilter = 'all';
+            loadOrders();
+        }
+
+        function refreshOrders() {
+            loadOrders(currentPage);
+            showToast('Refreshed', 'Orders list has been refreshed', 'info');
+        }
+
+        function refreshRecentOrders() {
+            fetch('/api/orders/recent/')
+                .then(res => res.json())
+                .then(data => {
+                    const recentOrdersContainer = document.getElementById('recentOrders');
+                    if (recentOrdersContainer && data.orders) {
+                        recentOrdersContainer.innerHTML = '';
+                        data.orders.forEach(order => {
+                            const orderCard = createOrderCard(order);
+                            if (orderCard) {
+                                recentOrdersContainer.appendChild(orderCard);
+                            }
+                        });
+                    }
+                    showToast('Refreshed', 'Recent orders updated', 'info');
+                })
+                .catch(error => {
+                    console.error('Error refreshing recent orders:', error);
+                    showToast('Error', 'Failed to refresh recent orders', 'danger');
+                });
+        }
+
+        function printAllReadyOrders() {
+            showToast('Info', 'Printing all ready orders...', 'info');
+        }
+
+        function viewOrder(orderId) {
+            console.log("Viewing order:", orderId);
+            currentOrderId = orderId;
+            
+            const modalContent = document.getElementById('orderDetailContent');
+            if (!modalContent) return;
+            
+            modalContent.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading order details...</p>
+                </div>
+            `;
+            
+            const modalElement = document.getElementById('orderDetailModal');
+            if (!modalElement) return;
+            
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+            
+            fetch(`/api/orders/${orderId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    console.log("Order data received:", order);
+                    
+                    let itemsHtml = '';
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach((item, index) => {
+                            itemsHtml += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.name || 'Item'}</td>
+                                    <td class="text-center">${item.quantity || 1}</td>
+                                    <td class="text-end">₹${(item.price || 0).toFixed(2)}</td>
+                                    <td class="text-end">₹${((item.quantity || 1) * (item.price || 0)).toFixed(2)}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        itemsHtml = `<tr><td colspan="5" class="text-center text-muted">No items found</td></tr>`;
+                    }
+                    
+                    // Status change buttons HTML (MUST be inside the .then() block where 'order' is defined)
+                    const statusChangeHtml = `
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Update Order Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="btn-group" role="group">
+                                    ${order.status !== 'pending' ? `
+                                        <button class="btn btn-outline-warning" onclick="updateStatusAndView('${order.id}', 'pending')">
+                                            <i class="fas fa-clock me-1"></i> Pending
+                                        </button>
+                                    ` : ''}
+                                    ${order.status !== 'preparing' ? `
+                                        <button class="btn btn-outline-info" onclick="updateStatusAndView('${order.id}', 'preparing')">
+                                            <i class="fas fa-cogs me-1"></i> Preparing
+                                        </button>
+                                    ` : ''}
+                                    ${order.status !== 'ready' ? `
+                                        <button class="btn btn-outline-success" onclick="updateStatusAndView('${order.id}', 'ready')">
+                                            <i class="fas fa-check-circle me-1"></i> Ready
+                                        </button>
+                                    ` : ''}
+                                    ${order.status !== 'completed' ? `
+                                        <button class="btn btn-outline-secondary" onclick="updateStatusAndView('${order.id}', 'completed')">
+                                            <i class="fas fa-clipboard-check me-1"></i> Complete
+                                        </button>
+                                    ` : ''}
+                                    ${order.status !== 'cancelled' ? `
+                                        <button class="btn btn-outline-danger" onclick="updateStatusAndView('${order.id}', 'cancelled')">
+                                            <i class="fas fa-times me-1"></i> Cancel
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const orderHtml = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Order Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td width="40%"><strong>Order ID:</strong></td>
+                                                <td>${order.order_number || `ORD-${order.id ? order.id.slice(0, 8).toUpperCase() : 'N/A'}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Status:</strong></td>
+                                                <td>
+                                                    <span class="badge ${order.status === 'pending' ? 'bg-warning' : 
+                                                        order.status === 'preparing' ? 'bg-info' : 
+                                                        order.status === 'ready' ? 'bg-success' : 
+                                                        order.status === 'completed' ? 'bg-secondary' : 'bg-danger'}">
+                                                        ${order.status_display || order.status || 'Pending'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Order Type:</strong></td>
+                                                <td>${order.order_type === 'delivery' ? 'Home Delivery' : 'Pickup from Store'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Order Date:</strong></td>
+                                                <td>${order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Payment Method:</strong></td>
+                                                <td>${order.payment_method || 'Cash'}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Customer Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td width="40%"><strong>Name:</strong></td>
+                                                <td>${order.customer_name || 'Guest Customer'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Phone:</strong></td>
+                                                <td>${order.phone_number || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Token:</strong></td>
+                                                <td>${order.token_number || 'Not assigned'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Total Amount:</strong></td>
+                                                <td><strong class="text-success">₹${(order.total_amount || 0).toFixed(2)}</strong></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-list me-2"></i>Order Items (${order.items_count || (order.items ? order.items.length : 0)})</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th width="5%">#</th>
+                                                <th width="50%">Item</th>
+                                                <th width="15%" class="text-center">Quantity</th>
+                                                <th width="15%" class="text-end">Unit Price</th>
+                                                <th width="15%" class="text-end">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${itemsHtml}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="4" class="text-end"><strong>Grand Total:</strong></td>
+                                                <td class="text-end"><strong class="text-success">₹${(order.total_amount || 0).toFixed(2)}</strong></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        ${statusChangeHtml}
+                    `;
+                    
+                    modalContent.innerHTML = orderHtml;
+                })
+                .catch(error => {
+                    console.error("Error loading order:", error);
+                    modalContent.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                            <h4>Error Loading Order</h4>
+                            <p class="text-muted">${error.message}</p>
+                            <button class="btn btn-primary mt-3" onclick="viewOrder('${orderId}')">
+                                <i class="fas fa-redo me-1"></i> Try Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function printOrderReceipt(orderId) {
+            console.log("Printing receipt for order:", orderId);
+            currentOrderId = orderId;
+            
+            const printContent = document.getElementById('printContent');
+            if (!printContent) return;
+            
+            printContent.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Generating receipt...</p>
+                </div>
+            `;
+            
+            const modalElement = document.getElementById('printModal');
+            if (!modalElement) return;
+            
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+            
+            fetch(`/api/orders/${orderId}/receipt/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Receipt data received:", data);
+                    
+                    if (data.receipt_html) {
+                        printContent.innerHTML = data.receipt_html;
+                    } else if (data.html) {
+                        printContent.innerHTML = data.html;
+                    } else if (data.order) {
+                        const order = data.order;
+                        const simpleReceipt = `
+                            <div style="font-family: 'Courier New', monospace; padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <h2 style="margin: 0;">WINE X</h2>
+                                    <p style="margin: 5px 0;">Wine Shop & Bar</p>
+                                    <p style="margin: 5px 0;">123 Wine Street, City</p>
+                                    <p style="margin: 5px 0;">Phone: +91 9876543210</p>
+                                </div>
+                                <hr>
+                                <div style="margin-bottom: 15px;">
+                                    <p><strong>Order #:</strong> ${order.order_number || `ORD-${order.id.slice(0, 8).toUpperCase()}`}</p>
+                                    <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                                    ${order.token_number ? `<p><strong>Token #:</strong> ${order.token_number}</p>` : ''}
+                                    <p><strong>Customer:</strong> ${order.customer_name || 'Guest Customer'}</p>
+                                    <p><strong>Phone:</strong> ${order.phone_number || 'N/A'}</p>
+                                </div>
+                                <hr>
+                                <div style="margin: 15px 0;">
+                                    <h4>Items:</h4>
+                                    ${order.items && order.items.length > 0 ? 
+                                        order.items.map(item => `
+                                            <p>${item.name || 'Item'} x${item.quantity || 1} = ₹${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
+                                        `).join('') : 
+                                        '<p>No items found</p>'
+                                    }
+                                </div>
+                                <hr>
+                                <div style="text-align: right; font-size: 18px; margin-top: 20px;">
+                                    <p><strong>TOTAL: ₹${(order.total_amount || 0).toFixed(2)}</strong></p>
+                                </div>
+                                <div style="text-align: center; margin-top: 30px; font-size: 14px;">
+                                    <p>Thank you for your order!</p>
+                                    <p>Visit again!</p>
+                                </div>
+                                <div style="text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #000;">
+                                    <p style="font-size: 12px;">Receipt ID: ${order.id.slice(0, 8).toUpperCase()}</p>
+                                    <p style="font-size: 12px;">Printed: ${new Date().toLocaleString()}</p>
+                                </div>
+                            </div>
+                        `;
+                        printContent.innerHTML = simpleReceipt;
+                    } else {
+                        throw new Error('No receipt data received');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error generating receipt:", error);
+                    printContent.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                            <h4>Error Generating Receipt</h4>
+                            <p class="text-muted">${error.message}</p>
+                            <button class="btn btn-primary mt-3" onclick="printOrderReceipt('${orderId}')">
+                                <i class="fas fa-redo me-1"></i> Try Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function printCurrentOrder() {
+            if (currentOrderId) {
+                printOrderReceipt(currentOrderId);
+            } else {
+                showToast('Error', 'No order selected', 'warning');
+            }
+        }
+
+        // PRODUCT FUNCTIONS
+        function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4>Loading products...</h4>
+                </div>
+            `;
+            
+            fetch('/api/products/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load products');
+                    return res.json();
+                })
+                .then(products => {
+                    container.innerHTML = '';
+                    if (products && products.length > 0) {
+                        products.forEach(product => {
+                            container.appendChild(createProductCard(product));
+                        });
+                    } else {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-wine-bottle"></i>
+                                <h4>No Products Found</h4>
+                                <p class="text-muted">Add your first product to get started.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading products:', error);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>Error Loading Products</h4>
+                            <p class="text-muted">${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function createProductCard(product) {
+            const div = document.createElement('div');
+            div.className = 'product-card';
+            
+            // Get short ID
+            const shortId = product.id ? product.id.substring(0, 8).toUpperCase() : 'N/A';
+            
+            // Get category class
+            const categoryClass = product.category ? `category-${product.category.toLowerCase().replace(/\s+/g, '-')}` : 'category-other';
+            const categoryName = product.category_display || product.category || 'Uncategorized';
+            
+            // Stock status
+            let stockBadgeClass = 'bg-success';
+            let stockText = `Stock: ${product.stock || 0}`;
+            let stockIcon = 'fas fa-check-circle';
+            
+            if (!product.stock || product.stock === 0) {
+                stockBadgeClass = 'bg-danger';
+                stockText = 'Out of Stock';
+                stockIcon = 'fas fa-times-circle';
+            } else if (product.stock < 10) {
+                stockBadgeClass = 'bg-warning';
+                stockText = `Low Stock: ${product.stock}`;
+                stockIcon = 'fas fa-exclamation-triangle';
+            }
+            
+            // Product image
+            const productImage = product.image ? 
+                `<img src="${product.image}" alt="${product.name}" class="img-fluid">` :
+                `<i class="fas fa-wine-bottle fa-3x text-muted"></i>`;
+            
+            div.innerHTML = `
+                <div class="product-id">ID: ${shortId}</div>
+                <div class="product-image">
+                    ${productImage}
+                </div>
+                <h5 class="mb-2">${product.name}</h5>
+                <div class="mb-2">
+                    <span class="category-badge ${categoryClass}">${categoryName}</span>
+                    <span class="badge ${stockBadgeClass} float-end">
+                        <i class="${stockIcon} me-1"></i>${stockText}
+                    </span>
+                </div>
+                <p class="text-muted small mb-2">${product.description || 'No description'}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="h5 mb-0">₹${parseFloat(product.price || 0).toFixed(2)}</span>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editProduct('${product.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        function refreshProducts() {
+            loadProducts();
+            showToast('Refreshed', 'Products list has been refreshed', 'info');
+        }
+
+        function showAddProductModal() {
+            const form = document.getElementById('addProductForm');
+            if (form) form.reset();
+            const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+            modal.show();
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const stock = parseInt(document.getElementById('productStock').value);
+            const status = document.getElementById('productStatus').value;
+            
+            if (!name || !price || !category || stock === undefined) {
+                showToast('Error', 'Please fill all required fields', 'danger');
+                return;
+            }
+            
+            const productData = {
+                name: name,
+                description: description,
+                price: price,
+                category: category,
+                stock: stock,
+                is_active: status === 'active'
+            };
+            
+            fetch('/api/products/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Success', 'Product saved successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    setTimeout(() => {
+                        loadProducts();
+                        loadAllProductsForBilling(); // Reload products cache for billing
+                    }, 1000);
+                } else {
+                    showToast('Error', data.error || 'Failed to save product', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error', 'Failed to save product', 'danger');
+            });
+        }
+
+        function editProduct(productId) {
+            showToast('Info', `Editing product: ${productId}`, 'info');
+            // Implementation for editing product
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                fetch(`/api/products/${productId}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Success', 'Product deleted successfully');
+                        loadProducts();
+                        loadAllProductsForBilling(); // Reload products cache for billing
+                    } else {
+                        showToast('Error', data.error || 'Failed to delete product', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'Failed to delete product', 'danger');
+                });
+            }
+        }
+
+        // CUSTOMER FUNCTIONS
+        function loadCustomers() {
+            const container = document.getElementById('customersContainer');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h4>Loading customers...</h4>
+                </div>
+            `;
+            
+            fetch('/api/customers/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load customers');
+                    return res.json();
+                })
+                .then(customers => {
+                    container.innerHTML = '';
+                    if (customers && customers.length > 0) {
+                        customers.forEach(customer => {
+                            container.appendChild(createCustomerCard(customer));
+                        });
+                    } else {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <h4>No Customers Found</h4>
+                                <p class="text-muted">No customers have registered yet.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading customers:', error);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>Error Loading Customers</h4>
+                            <p class="text-muted">${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function createCustomerCard(customer) {
+            const div = document.createElement('div');
+            div.className = 'customer-card';
+            div.innerHTML = `
+                <div class="d-flex align-items-center mb-3">
+                    <div class="customer-avatar me-3" style="width: 50px; height: 50px;">
+                        ${customer.name ? customer.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div>
+                        <h5 class="mb-0">${customer.name || 'Unknown'}</h5>
+                        <p class="text-muted small mb-0">${customer.email || 'No email'}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1"><i class="fas fa-phone me-2"></i>${customer.phone || 'No phone'}</p>
+                    <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>${customer.address || 'No address'}</p>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="badge bg-primary">${customer.total_orders || 0} orders</span>
+                    <span class="badge bg-success">₹${customer.total_spent || 0}</span>
+                </div>
+            `;
+            return div;
+        }
+
+        function showAddCustomerModal() {
+            showToast('Info', 'Add customer functionality coming soon', 'info');
+        }
+
+        // REPORT FUNCTIONS
+        function loadReports() {
+            fetch('/api/reports/today/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load reports');
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('todayOrders').textContent = data.total_orders || 0;
+                    document.getElementById('todayRevenue').textContent = `₹${data.total_revenue || 0}`;
+                    document.getElementById('avgOrderValue').textContent = `₹${data.average_order || 0}`;
+                })
+                .catch(error => {
+                    console.error('Error loading reports:', error);
+                    showToast('Error', 'Failed to load reports', 'danger');
+                });
+        }
+
+        function exportReport(type) {
+            showToast('Info', `Exporting ${type} report...`, 'info');
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toastEl = document.getElementById('liveToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            if (!toastEl || !toastTitle || !toastMessage) {
+                console.error('Toast elements not found!');
+                return;
+            }
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Remove existing toast classes
+            toastEl.className = 'toast';
+            // Add new classes
+            toastEl.classList.add(`bg-${type}`, 'text-white');
+            
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function getCsrfToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function (e) {
+                if (e.altKey && e.key === 'd') loadSection('dashboard');
+                if (e.altKey && e.key === 'o') loadSection('orders');
+                if (e.altKey && e.key === 'p') loadSection('products');
+                if (e.altKey && e.key === 'c') loadSection('customers');
+                if (e.altKey && e.key === 'r') loadSection('reports');
+                if (e.altKey && e.key === 's') toggleSidebar();
+                if (e.altKey && e.key === 'b') showManualBillingFullscreen();
+            });
+        }
+    </script>
+</body>
+</html>

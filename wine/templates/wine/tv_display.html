@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Display - WineX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7e1c2f;
+            --primary-light: #9d4354;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --danger: #dc3545;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .tv-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .tv-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .shop-title {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .title-text h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .title-text p {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin: 5px 0 0 0;
+        }
+        
+        .status-summary {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .status-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .status-box.pending { border-left: 5px solid var(--warning); }
+        .status-box.preparing { border-left: 5px solid var(--info); }
+        .status-box.ready { border-left: 5px solid var(--success); }
+        
+        .status-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1;
+        }
+        
+        .status-box.pending .status-count { color: var(--warning); }
+        .status-box.preparing .status-count { color: var(--info); }
+        .status-box.ready .status-count { color: var(--success); }
+        
+        .status-label {
+            font-size: 1rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        /* Clock */
+        .clock-display {
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .time {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .date {
+            font-size: 1rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        /* Main Content */
+        .tv-main {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+        
+        /* Single Order Mode */
+        .single-order-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .single-order-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 80%;
+            max-width: 800px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .single-order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .token-display {
+            text-align: center;
+        }
+        
+        .token-label {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .token-number {
+            font-size: 5rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+            to { text-shadow: 0 0 30px rgba(255,255,255,0.8); }
+        }
+        
+        .order-status-large {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .status-pending { background: rgba(255,193,7,0.2); color: var(--warning); border: 3px solid var(--warning); }
+        .status-preparing { background: rgba(23,162,184,0.2); color: var(--info); border: 3px solid var(--info); }
+        .status-ready { 
+            background: rgba(40,167,69,0.2); 
+            color: var(--success); 
+            border: 3px solid var(--success);
+            animation: pulseReady 1.5s infinite;
+        }
+        
+        @keyframes pulseReady {
+            0% { box-shadow: 0 0 0 0 rgba(40,167,69,0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(40,167,69,0); }
+            100% { box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+        }
+        
+        .order-items-list {
+            margin: 30px 0;
+        }
+        
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .item-name {
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+        
+        .item-quantity {
+            font-size: 1.3rem;
+            color: #aaa;
+        }
+        
+        .customer-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .customer-name, .order-time {
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        .customer-name strong, .order-time strong {
+            color: #fff;
+            display: block;
+            font-size: 1.4rem;
+            margin-top: 5px;
+        }
+        
+        /* Multiple Orders Grid */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .order-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .order-card.pending { border-top: 5px solid var(--warning); }
+        .order-card.preparing { border-top: 5px solid var(--info); }
+        .order-card.ready { border-top: 5px solid var(--success); }
+        
+        /* FIXED: Order card header with proper flex behavior */
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            min-height: 60px;
+            gap: 15px;
+        }
+        
+        .order-token-container {
+            flex: 1;
+            min-width: 0; /* Allows text truncation */
+        }
+        
+        .order-token {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            word-break: break-word;
+            line-height: 1.1;
+        }
+        
+        /* FIXED: Status badge with fixed width */
+        .order-status-container {
+            flex-shrink: 0;
+        }
+        
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            white-space: nowrap;
+            min-width: 100px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
+        .order-items-compact {
+            margin: 15px 0;
+        }
+        
+        .compact-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+        }
+        
+        .compact-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name-compact {
+            font-size: 1.1rem;
+        }
+        
+        .item-qty {
+            color: #aaa;
+            font-size: 1rem;
+        }
+        
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .time-ago {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            font-size: 5rem;
+            color: rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .empty-text h3 {
+            font-size: 2rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        /* Footer */
+        .tv-footer {
+            background: rgba(0,0,0,0.8);
+            padding: 15px 40px;
+            border-top: 2px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .refresh-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .refresh-icon {
+            color: var(--info);
+            animation: spin 10s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .control-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        /* Status Colors */
+        .status-pending { background: rgba(255,193,7,0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .status-preparing { background: rgba(23,162,184,0.2); color: var(--info); border: 1px solid var(--info); }
+        .status-ready { 
+            background: rgba(40,167,69,0.2); 
+            color: var(--success); 
+            border: 1px solid var(--success);
+        }
+        
+        /* Fullscreen fixes */
+        :fullscreen .order-card-header,
+        :-webkit-full-screen .order-card-header,
+        :-moz-full-screen .order-card-header,
+        :-ms-fullscreen .order-card-header {
+            min-height: 70px;
+            margin-bottom: 20px;
+        }
+        
+        :fullscreen .order-token,
+        :-webkit-full-screen .order-token,
+        :-moz-full-screen .order-token,
+        :-ms-fullscreen .order-token {
+            font-size: 2.8rem;
+        }
+        
+        :fullscreen .order-status,
+        :-webkit-full-screen .order-status,
+        :-moz-full-screen .order-status,
+        :-ms-fullscreen .order-status {
+            font-size: 0.9rem;
+            padding: 10px 20px;
+            min-width: 110px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .orders-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .tv-header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .shop-title {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .status-summary {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                min-height: auto;
+            }
+            
+            .order-token {
+                font-size: 2rem;
+            }
+            
+            .order-status {
+                align-self: flex-start;
+            }
+        }
+
+        /* Add a fullscreen overlay for instructions */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .fullscreen-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--info);
+        }
+        
+        .fullscreen-overlay p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+        
+        .countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--success);
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .fullscreen-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .fullscreen-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            max-width: 600px;
+        }
+        
+        .instructions ul {
+            text-align: left;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fullscreen overlay (shown initially) -->
+    <div id="fullscreenOverlay" class="fullscreen-overlay" style="display: none;">
+        <h2><i class="fas fa-expand"></i> Fullscreen Mode</h2>
+        <p>TV Display will enter fullscreen mode automatically</p>
+        <div class="countdown" id="countdown">3</div>
+        <p>Or click the button below to enter fullscreen immediately</p>
+        <button class="fullscreen-btn" onclick="enterFullscreen()">
+            <i class="fas fa-expand me-2"></i>Enter Fullscreen Now
+        </button>
+        
+        <div class="instructions">
+            <h4>Keyboard Shortcuts:</h4>
+            <ul>
+                <li><strong>F11</strong> - Toggle fullscreen</li>
+                <li><strong>Space</strong> - Refresh immediately</li>
+                <li><strong>Esc</strong> - Exit fullscreen</li>
+                <li><strong>F5</strong> - Full refresh</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main TV Display Container -->
+    <div class="tv-container" id="mainContent">
+        <!-- Header -->
+        <div class="tv-header">
+            <div class="shop-title">
+                <div class="logo">
+                    <i class="fas fa-wine-bottle"></i>
+                </div>
+                <div class="title-text">
+                    <h1>WINE X - ORDER STATUS</h1>
+                    <p>LIVE ORDER TRACKING DISPLAY</p>
+                </div>
+            </div>
+            
+            <div class="status-summary">
+                <div class="status-box pending">
+                    <span class="status-count">{{ pending_count }}</span>
+                    <span class="status-label">PENDING</span>
+                </div>
+                <div class="status-box preparing">
+                    <span class="status-count">{{ preparing_count }}</span>
+                    <span class="status-label">PREPARING</span>
+                </div>
+                <div class="status-box ready">
+                    <span class="status-count">{{ ready_count }}</span>
+                    <span class="status-label">READY</span>
+                </div>
+            </div>
+            
+            <div class="clock-display">
+                <div class="time" id="currentTime">--:--:--</div>
+                <div class="date" id="currentDate">-- --- ----</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="tv-main">
+            {% if single_mode %}
+                <!-- Single Order View -->
+                <div class="single-order-view">
+                    {% if orders %}
+                        {% for order in orders %}
+                        <div class="single-order-card">
+                            <div class="single-order-header">
+                                <div class="token-display">
+                                    <div class="token-label">TOKEN NUMBER</div>
+                                    <div class="token-number">#{{ order.token_number|default:"----" }}</div>
+                                </div>
+                                <div class="order-status-large status-{{ order.status }}">
+                                    {{ order.get_status_display|upper }}
+                                </div>
+                            </div>
+                            
+                            <div class="order-items-list">
+                                {% for item in order.items.all %}
+                                <div class="order-item-row">
+                                    <div class="item-name">
+                                        {% if item.product %}
+                                            {{ item.product.name }}
+                                        {% elif item.combo %}
+                                            {{ item.combo.name }}
+                                        {% else %}
+                                            Item
+                                        {% endif %}
+                                    </div>
+                                    <div class="item-quantity">
+                                        Qty: {{ item.quantity }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="customer-info">
+                                <div class="customer-name">
+                                    Customer
+                                    <strong>
+                                        {% if order.user %}
+                                            {{ order.user.full_name|default:order.user.username|truncatechars:20 }}
+                                        {% else %}
+                                            Walk-in Customer
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                                <div class="order-time">
+                                    Order Time
+                                    <strong>{{ order.created_at|time:"H:i" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="empty-text">
+                                <h3>NO ACTIVE ORDERS</h3>
+                                <p>Waiting for new orders...</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Multiple Orders Grid -->
+                <div class="orders-grid">
+                    {% if orders %}
+                        {% for order in orders %}
+                        <div class="order-card {{ order.status }}">
+                            <!-- FIXED: Updated order card header structure -->
+                            <div class="order-card-header">
+                                <div class="order-token-container">
+                                    <div class="order-token">#{{ order.token_number|default:"----" }}</div>
+                                </div>
+                                <div class="order-status-container">
+                                    <div class="order-status status-{{ order.status }}">
+                                        {{ order.get_status_display|upper }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="order-items-compact">
+                                {% for item in order.items.all|slice:":3" %}
+                                <div class="compact-item">
+                                    <div class="item-name-compact">
+                                        {% if item.product %}
+                                            {{ item.product.name }}
+                                        {% elif item.combo %}
+                                            {{ item.combo.name }}
+                                        {% else %}
+                                            Item
+                                        {% endif %}
+                                    </div>
+                                    <div class="item-qty">x{{ item.quantity }}</div>
+                                </div>
+                                {% endfor %}
+                                
+                                {% if order.items.count > 3 %}
+                                <div class="compact-item">
+                                    <div class="item-name-compact">
+                                        +{{ order.items.count|add:"-3" }} more items
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="order-footer">
+                                <div>
+                                    {% if order.user %}
+                                        {{ order.user.full_name|default:order.user.username|truncatechars:15 }}
+                                    {% else %}
+                                        Walk-in
+                                    {% endif %}
+                                </div>
+                                <div class="time-ago">
+                                    {{ order.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="empty-text">
+                                <h3>NO ACTIVE ORDERS</h3>
+                                <p>Waiting for new orders...</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Footer -->
+        <div class="tv-footer">
+            <div class="refresh-info">
+                <i class="fas fa-sync-alt refresh-icon"></i>
+                <span>Auto-refreshing every 10 seconds</span>
+                <span id="fullscreenStatus" class="ms-3">
+                    <i class="fas fa-expand"></i> Fullscreen
+                </span>
+            </div>
+            
+            <div class="control-info">
+                <span>Press F11 to toggle fullscreen</span>
+                <span>|</span>
+                <span>Total Active Orders: <strong>{{ total_active }}</strong></span>
+                <span>|</span>
+                <span>Last Update: <span id="lastUpdateTime">--:--:--</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Store fullscreen state and data
+        let isFullscreen = false;
+        let autoRefreshInterval = null;
+        let lastUpdateTime = new Date();
+        
+        // Function to enter fullscreen
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                    // If fullscreen fails, try again in 1 second
+                    setTimeout(enterFullscreen, 1000);
+                });
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+            
+            localStorage.setItem('tvDisplayFullscreen', 'true');
+            isFullscreen = true;
+            updateFullscreenStatus();
+        }
+        
+        // Function to exit fullscreen
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            
+            localStorage.setItem('tvDisplayFullscreen', 'false');
+            isFullscreen = false;
+            updateFullscreenStatus();
+        }
+        
+        // Check fullscreen state
+        function updateFullscreenStatus() {
+            isFullscreen = !!(document.fullscreenElement || 
+                             document.mozFullScreenElement || 
+                             document.webkitFullscreenElement || 
+                             document.msFullscreenElement);
+            
+            const statusElement = document.getElementById('fullscreenStatus');
+            if (statusElement) {
+                if (isFullscreen) {
+                    statusElement.innerHTML = '<i class="fas fa-expand"></i> Fullscreen Active';
+                    statusElement.style.color = '#28a745';
+                } else {
+                    statusElement.innerHTML = '<i class="fas fa-compress"></i> Press F11';
+                    statusElement.style.color = '#ffc107';
+                }
+            }
+        }
+        
+        // AJAX function to refresh only the content (not the whole page)
+        function refreshContent() {
+            // Show loading indicator
+            const lastUpdateElement = document.getElementById('lastUpdateTime');
+            if (lastUpdateElement) {
+                lastUpdateElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            }
+            
+            // Fetch updated content with timestamp to prevent caching
+            fetch(window.location.href + '?t=' + Date.now())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Parse the HTML response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract status counts
+                    const newStatusCounts = {
+                        pending: doc.querySelector('.status-box.pending .status-count')?.textContent || '0',
+                        preparing: doc.querySelector('.status-box.preparing .status-count')?.textContent || '0',
+                        ready: doc.querySelector('.status-box.ready .status-count')?.textContent || '0',
+                        total: doc.querySelector('.control-info strong')?.textContent || '0'
+                    };
+                    
+                    // Update status counts
+                    document.querySelector('.status-box.pending .status-count').textContent = newStatusCounts.pending;
+                    document.querySelector('.status-box.preparing .status-count').textContent = newStatusCounts.preparing;
+                    document.querySelector('.status-box.ready .status-count').textContent = newStatusCounts.ready;
+                    document.querySelector('.control-info strong').textContent = newStatusCounts.total;
+                    
+                    // Extract orders grid
+                    const newOrdersGrid = doc.querySelector('.orders-grid');
+                    if (newOrdersGrid) {
+                        const currentGrid = document.querySelector('.orders-grid');
+                        if (currentGrid) {
+                            currentGrid.innerHTML = newOrdersGrid.innerHTML;
+                            
+                            // Re-initialize animations for new cards
+                            document.querySelectorAll('.order-card').forEach((card, index) => {
+                                card.style.animation = 'none';
+                                setTimeout(() => {
+                                    card.style.animation = 'fadeIn 0.5s ease-out forwards';
+                                    card.style.animationDelay = `${index * 0.1}s`;
+                                }, 10);
+                            });
+                        }
+                    }
+                    
+                    // Update last update time
+                    lastUpdateTime = new Date();
+                    updateClock();
+                    
+                    // Update success indicator
+                    if (lastUpdateElement) {
+                        lastUpdateElement.innerHTML = '<i class="fas fa-check-circle text-success"></i> Updated';
+                        setTimeout(() => {
+                            const timeString = lastUpdateTime.toLocaleTimeString('en-US', {
+                                hour12: false,
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            });
+                            lastUpdateElement.textContent = timeString;
+                        }, 2000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing content:', error);
+                    
+                    // Show error indicator
+                    if (lastUpdateElement) {
+                        lastUpdateElement.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> Error';
+                        setTimeout(() => {
+                            const timeString = lastUpdateTime.toLocaleTimeString('en-US', {
+                                hour12: false,
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            });
+                            lastUpdateElement.textContent = timeString;
+                        }, 3000);
+                    }
+                });
+        }
+        
+        // Setup auto-refresh (AJAX based - no page reload)
+        function setupAutoRefresh() {
+            // Clear any existing interval
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            // Refresh content every 10 seconds via AJAX
+            autoRefreshInterval = setInterval(() => {
+                refreshContent();
+            }, 30000); // 10 seconds
+        }
+        
+        // Initialize fullscreen on page load
+        function initializeFullscreen() {
+            // Always hide overlay
+            document.getElementById('fullscreenOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'flex';
+            
+            // Check localStorage for fullscreen preference
+            const storedFullscreen = localStorage.getItem('tvDisplayFullscreen') === 'true';
+            
+            // Enter fullscreen if it was previously enabled
+            if (storedFullscreen && !document.fullscreenElement) {
+                // Small delay to ensure page is loaded
+                setTimeout(() => {
+                    if (!document.fullscreenElement) {
+                        enterFullscreen();
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Update clock function
+        function updateClock() {
+            const now = new Date();
+            
+            // Update time
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const timeElement = document.getElementById('currentTime');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+            
+            // Update date
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = dateString;
+            }
+            
+            // Update last update time if not already set by AJAX
+            const lastUpdateElement = document.getElementById('lastUpdateTime');
+            if (lastUpdateElement && !lastUpdateElement.innerHTML.includes('fa-')) {
+                lastUpdateElement.textContent = timeString;
+            }
+        }
+        
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // F11 for fullscreen
+                if (e.key === 'F11') {
+                    e.preventDefault();
+                    if (!isFullscreen) {
+                        enterFullscreen();
+                    } else {
+                        exitFullscreen();
+                    }
+                    return;
+                }
+                
+                // Space to refresh content immediately
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    refreshContent();
+                    return;
+                }
+                
+                // F5 for hard refresh (only if needed)
+                if (e.key === 'F5') {
+                    // Store fullscreen state before hard refresh
+                    localStorage.setItem('tvDisplayFullscreen', isFullscreen ? 'true' : 'false');
+                    // Let default F5 behavior happen
+                    return;
+                }
+                
+                // R key to refresh
+                if (e.key === 'r' || e.key === 'R') {
+                    refreshContent();
+                    return;
+                }
+            });
+        }
+        
+        // Fullscreen change event listeners
+        document.addEventListener('fullscreenchange', updateFullscreenStatus);
+        document.addEventListener('mozfullscreenchange', updateFullscreenStatus);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenStatus);
+        document.addEventListener('MSFullscreenChange', updateFullscreenStatus);
+        
+        // Prevent accidental exit from fullscreen
+        document.addEventListener('fullscreenchange', function() {
+            // If we exit fullscreen accidentally, re-enter if localStorage says we should
+            if (!document.fullscreenElement && localStorage.getItem('tvDisplayFullscreen') === 'true') {
+                setTimeout(() => {
+                    if (!document.fullscreenElement) {
+                        console.log('Re-entering fullscreen after accidental exit');
+                        enterFullscreen();
+                    }
+                }, 100);
+            }
+        });
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize fullscreen
+            initializeFullscreen();
+            
+            // Setup clock
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Setup auto-refresh (AJAX based)
+            setupAutoRefresh();
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+            
+            // Update fullscreen status
+            updateFullscreenStatus();
+            
+            // Keep trying to enter fullscreen if needed (for 30 seconds)
+            const fullscreenCheckInterval = setInterval(() => {
+                if (localStorage.getItem('tvDisplayFullscreen') === 'true' && !document.fullscreenElement) {
+                    console.log('Ensuring fullscreen is active...');
+                    enterFullscreen();
+                }
+            }, 3000); // Check every 3 seconds
+            
+            // Stop checking after 30 seconds
+            setTimeout(() => {
+                clearInterval(fullscreenCheckInterval);
+            }, 30000);
+            
+            // Keep screen awake
+            if ('wakeLock' in navigator) {
+                let wakeLock = null;
+                const requestWakeLock = async () => {
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake Lock active');
+                    } catch (err) {
+                        console.log('Wake Lock error:', err);
+                    }
+                };
+                requestWakeLock();
+                
+                // Re-request wake lock when page becomes visible
+                document.addEventListener('visibilitychange', async () => {
+                    if (document.visibilityState === 'visible' && wakeLock === null) {
+                        await requestWakeLock();
+                    }
+                });
+            }
+        });
+        
+        // Handle beforeunload to store state
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('tvDisplayFullscreen', isFullscreen ? 'true' : 'false');
+        });
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && localStorage.getItem('tvDisplayFullscreen') === 'true') {
+                // Page became visible again, re-enter fullscreen
+                setTimeout(() => {
+                    if (!document.fullscreenElement) {
+                        enterFullscreen();
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

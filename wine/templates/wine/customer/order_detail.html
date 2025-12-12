@@ -1,0 +1,974 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Wine X</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --wine-dark: #2c0b0e;
+            --wine-red: #8b0000;
+            --wine-light: #f8f1f1;
+            --wine-burgundy: #800020;
+            --gold-accent: #d4af37;
+            --gold-light: #f4e4b1;
+            --light-gray: #f9f9f9;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f9f6f2 0%, #f5f0eb 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Back Button */
+        .back-btn {
+            background: linear-gradient(135deg, var(--wine-red), var(--wine-burgundy));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(139, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(139, 0, 0, 0.3);
+            color: white;
+        }
+        
+        /* Order Header */
+        .order-header {
+            background: linear-gradient(135deg, var(--wine-dark) 0%, var(--wine-burgundy) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(139, 0, 0, 0.25);
+        }
+        
+        .order-id {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .order-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .order-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-pending { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+        .status-confirmed { 
+            background: linear-gradient(135deg, #d1ecf1, #a8e6cf);
+            color: #0c5460;
+        }
+        .status-processing { 
+            background: linear-gradient(135deg, #cce5ff, #84cefa);
+            color: #004085;
+        }
+        .status-shipped { 
+            background: linear-gradient(135deg, #d4edda, #b7efcd);
+            color: #155724;
+        }
+        .status-delivered { 
+            background: linear-gradient(135deg, #d1e7dd, #95e1d3);
+            color: #0f5132;
+        }
+        .status-cancelled { 
+            background: linear-gradient(135deg, #f8d7da, #f7a8b8);
+            color: #721c24;
+        }
+        
+        .order-total {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: right;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Cards - FIXED HEIGHT MANAGEMENT */
+        .card-custom {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(139, 0, 0, 0.08);
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(139, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--wine-red) 0%, var(--wine-burgundy) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--wine-dark);
+            margin: 0;
+        }
+        
+        /* Order Items - COMPACT */
+        .order-items-container {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            padding-right: 5px;
+        }
+        
+        .order-items-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .order-items-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .order-items-container::-webkit-scrollbar-thumb {
+            background: var(--wine-red);
+            border-radius: 10px;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(139, 0, 0, 0.02);
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .order-item:hover {
+            background: rgba(139, 0, 0, 0.05);
+            border-color: rgba(139, 0, 0, 0.1);
+            transform: translateX(3px);
+        }
+        
+        .item-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #f8f1f1 0%, #f0e6e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .item-image i {
+            font-size: 28px;
+            color: var(--wine-red);
+        }
+        
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .item-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--wine-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .item-category {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-quantity {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .item-price {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--wine-red);
+        }
+        
+        /* Order Summary - COMPACT */
+        .summary-section {
+            flex: 1;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 800;
+            font-size: 18px;
+            padding-top: 15px;
+            margin-top: 5px;
+            border-top: 2px solid rgba(139, 0, 0, 0.1);
+        }
+        
+        /* Timeline - COMPACT */
+        .timeline-container {
+            flex: 1;
+            padding: 10px 0;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 10px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 22px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--wine-red), var(--gold-accent));
+            border-radius: 2px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 20px;
+            min-height: 50px;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-icon {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 12px;
+        }
+        
+        .timeline-item.completed .timeline-icon {
+            background: var(--wine-red);
+            border-color: var(--wine-red);
+            color: white;
+        }
+        
+        .timeline-item.current .timeline-icon {
+            background: var(--gold-accent);
+            border-color: var(--gold-accent);
+            color: white;
+        }
+        
+        .timeline-content h6 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--wine-dark);
+        }
+        
+        .timeline-content p {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+        }
+        
+        /* Action Buttons - COMPACT */
+        .actions-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: 2px solid var(--wine-red);
+            color: var(--wine-red);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(135deg, var(--wine-red), var(--wine-burgundy));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.2);
+        }
+        
+        .action-btn.secondary {
+            border-color: var(--gold-accent);
+            color: var(--wine-dark);
+        }
+        
+        .action-btn.secondary:hover {
+            background: linear-gradient(135deg, var(--gold-accent), #b89434);
+            color: var(--wine-dark);
+        }
+        
+        /* Support Card - COMPACT */
+        .support-card {
+            background: linear-gradient(135deg, var(--wine-dark) 0%, var(--wine-burgundy) 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+        
+        .support-card h4 {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .support-card p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        /* Order Info Section */
+        .order-info-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(139, 0, 0, 0.1);
+        }
+        
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .info-label {
+            width: 120px;
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container-main {
+                padding: 15px;
+            }
+            
+            .order-header {
+                padding: 25px;
+            }
+            
+            .order-total {
+                font-size: 28px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .card-custom {
+                padding: 20px;
+            }
+            
+            .order-item {
+                padding: 12px;
+            }
+            
+            .item-image {
+                width: 60px;
+                height: 60px;
+                margin-right: 12px;
+            }
+            
+            .item-name {
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .order-header {
+                padding: 20px;
+            }
+            
+            .order-id {
+                font-size: 22px;
+            }
+            
+            .order-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .order-total {
+                text-align: left;
+                margin-top: 15px;
+                font-size: 24px;
+            }
+            
+            .timeline::before {
+                left: 18px;
+            }
+            
+            .timeline-item {
+                padding-left: 45px;
+            }
+            
+            .timeline-icon {
+                left: 6px;
+                width: 22px;
+                height: 22px;
+            }
+            
+            .action-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .order-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .item-image {
+                margin-right: 0;
+                margin-bottom: 12px;
+            }
+            
+            .item-details {
+                width: 100%;
+            }
+            
+            .item-meta {
+                flex-direction: column;
+                gap: 5px;
+                align-items: center;
+            }
+            
+            .card-title {
+                font-size: 18px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-label {
+                width: 100%;
+            }
+        }
+        
+        /* Grid Layout Fix */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+        
+        /* Height Control */
+        .height-control {
+            min-height: 0;
+            max-height: none;
+        }
+        
+        .scrollable-content {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .non-scrollable {
+            overflow: visible;
+            max-height: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Back Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'customer_dashboard' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+            <div class="d-none d-md-block">
+                <span class="text-muted">Order Date: {{ order.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        
+        <!-- Order Header -->
+        <div class="order-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="order-id">Order #{{ order.id|slice:":8"|upper }}</h1>
+                    <div class="order-meta">
+                        <span class="order-status status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </span>
+                        <span><i class="fas fa-calendar me-2"></i>{{ order.created_at|date:"F d, Y" }}</span>
+                        <span><i class="fas fa-clock me-2"></i>{{ order.created_at|time:"g:i A" }}</span>
+                    </div>
+                    {% if order.token_number %}
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark p-2"><i class="fas fa-ticket-alt me-2"></i>Token: #{{ order.token_number }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="order-total">
+                        ₹{{ order.total_amount|floatformat:2 }}
+                    </div>
+                    <p class="mb-0 opacity-75">Total Amount</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Grid Layout -->
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Order Items Card -->
+                <div class="card-custom height-control">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h2 class="card-title">Order Items ({{ order_items|length }})</h2>
+                    </div>
+                    
+                    <div class="order-items-container scrollable-content">
+                        {% for item in order_items %}
+                        <div class="order-item">
+                            <div class="item-image">
+                                {% if item.image %}
+                                    <img src="{{ item.image }}" alt="{{ item.name }}">
+                                {% else %}
+                                    <i class="fas fa-wine-bottle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <h3 class="item-name">{{ item.name }}</h3>
+                                <p class="item-category">{{ item.category|title }}</p>
+                                <div class="item-meta">
+                                    <div class="item-quantity">
+                                        <span class="badge bg-light text-dark">Qty: {{ item.quantity }}</span>
+                                        <span class="badge bg-light text-dark ms-2">₹{{ item.price|floatformat:2 }} each</span>
+                                    </div>
+                                    <div class="item-price">₹{{ item.total|floatformat:2 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Order Summary Card -->
+                <div class="card-custom height-control non-scrollable">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h2 class="card-title">Order Summary</h2>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹{{ order.total_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (5%)</span>
+                            <span>₹{{ order.tax_amount|default:"0.00" }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Service Fee</span>
+                            <span>₹{{ order.service_fee|default:"39.00" }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Total Amount</span>
+                            <span class="text-wine-red fw-bold">₹{{ order.final_total|default:order.total_amount|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-info-section">
+                        <div class="info-row">
+                            <span class="info-label">Order Type:</span>
+                            <span class="info-value">
+                                {% if order.order_type == 'delivery' %}
+                                    <span class="badge bg-primary">Home Delivery</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Store Pickup</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Payment Method:</span>
+                            <span class="info-value">
+                                {% if order.payment_method == 'cod' %}
+                                    <span class="badge bg-secondary">Cash on Delivery</span>
+                                {% elif order.payment_method == 'online' %}
+                                    <span class="badge bg-success">Online Payment</span>
+                                {% else %}
+                                    <span class="badge bg-info">Cash</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        {% if order.order_type == 'delivery' and order.delivery_address %}
+                        <div class="info-row">
+                            <span class="info-label">Delivery Address:</span>
+                            <span class="info-value">{{ order.delivery_address }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.expected_delivery %}
+                        <div class="info-row">
+                            <span class="info-label">Expected Delivery:</span>
+                            <span class="info-value">{{ order.expected_delivery|date:"F d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Order Timeline Card -->
+                <div class="card-custom height-control">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h2 class="card-title">Order Status</h2>
+                    </div>
+                    
+                    <div class="timeline-container non-scrollable">
+                        <div class="timeline">
+                            <div class="timeline-item {% if order.status != 'pending' %}completed{% else %}current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Order Placed</h6>
+                                    <p>Your order has been received</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {% if order.status == 'confirmed' or order.status == 'processing' or order.status == 'ready' or order.status == 'completed' %}completed{% elif order.status == 'confirmed' %}current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Order Confirmed</h6>
+                                    <p>We've confirmed your order</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {% if order.status == 'processing' or order.status == 'ready' or order.status == 'completed' %}completed{% elif order.status == 'processing' %}current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Processing</h6>
+                                    <p>Preparing your items</p>
+                                </div>
+                            </div>
+                            
+                            {% if order.order_type == 'delivery' %}
+                            <div class="timeline-item {% if order.status == 'ready' or order.status == 'completed' %}completed{% elif order.status == 'shipped' %}current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Out for Delivery</h6>
+                                    <p>Your order is on the way</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {% if order.status == 'completed' %}completed current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Delivered</h6>
+                                    <p>Order delivered successfully</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="timeline-item {% if order.status == 'completed' %}completed{% elif order.status == 'ready' %}current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Ready for Pickup</h6>
+                                    <p>Your order is ready</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {% if order.status == 'completed' %}completed current{% endif %}">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6>Picked Up</h6>
+                                    <p>Order collected successfully</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions Card -->
+                <div class="card-custom height-control">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    
+                    <div class="actions-grid">
+                        {% if order.order_type == 'delivery' and order.status == 'shipped' %}
+                        <button class="action-btn">
+                            <i class="fas fa-truck"></i>
+                            Track Delivery
+                        </button>
+                        {% endif %}
+                        
+                        {% if order.status != 'cancelled' and order.status != 'completed' %}
+                        <button class="action-btn secondary">
+                            <i class="fas fa-edit"></i>
+                            Update Order
+                        </button>
+                        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-times"></i>
+                            Cancel Order
+                        </button>
+                        {% endif %}
+                        
+                        <button class="action-btn secondary">
+                            <i class="fas fa-print"></i>
+                            Print Invoice
+                        </button>
+                        
+                        <button class="action-btn secondary">
+                            <i class="fas fa-redo"></i>
+                            Reorder Items
+                        </button>
+                        
+                        <button class="action-btn">
+                            <i class="fas fa-share-alt"></i>
+                            Share Order
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Support Card -->
+                <div class="support-card">
+                    <h4><i class="fas fa-headset me-2"></i>Need Help?</h4>
+                    <p>Contact our support team 24/7 for assistance</p>
+                    
+                    <div class="actions-grid">
+                        <a href="mailto:support@winex.com" class="action-btn secondary">
+                            <i class="fas fa-envelope"></i>
+                            Email Support
+                        </a>
+                        <a href="tel:+911234567890" class="action-btn">
+                            <i class="fas fa-phone"></i>
+                            Call Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize auto-height adjustment
+        function adjustCardHeights() {
+            const cards = document.querySelectorAll('.card-custom.height-control');
+            cards.forEach(card => {
+                const header = card.querySelector('.card-header');
+                const content = card.querySelector('.scrollable-content, .timeline-container, .summary-section, .actions-grid');
+                
+                if (header && content) {
+                    const headerHeight = header.offsetHeight;
+                    const availableHeight = card.offsetHeight - headerHeight - 50; // 50px for padding
+                    
+                    if (content.classList.contains('scrollable-content')) {
+                        content.style.maxHeight = availableHeight + 'px';
+                    }
+                }
+            });
+        }
+        
+        // Adjust on load and resize
+        window.addEventListener('load', adjustCardHeights);
+        window.addEventListener('resize', adjustCardHeights);
+        
+        // Function to share order
+        function shareOrder() {
+            const orderUrl = window.location.href;
+            const orderText = `Check out my Wine X order #{{ order.id|slice:":8"|upper }}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Wine X Order',
+                    text: orderText,
+                    url: orderUrl
+                });
+            } else {
+                navigator.clipboard.writeText(`${orderText}: ${orderUrl}`).then(() => {
+                    alert('Order link copied to clipboard!');
+                });
+            }
+        }
+        
+        // Update the viewOrderDetails function in your dashboard
+        function viewOrderDetails(orderId) {
+            window.location.href = `/customer/orders/${orderId}/`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Receipt - {{ order_number }}</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 0;
+            padding: 20px;
+            background: white;
+        }
+        
+        .receipt {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .header h2 {
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        
+        .info {
+            margin-bottom: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .items-table th {
+            border-bottom: 1px solid #333;
+            padding: 5px 0;
+            text-align: left;
+        }
+        
+        .items-table td {
+            padding: 3px 0;
+        }
+        
+        .items-table .name {
+            width: 60%;
+        }
+        
+        .items-table .qty {
+            width: 15%;
+            text-align: center;
+        }
+        
+        .items-table .price {
+            width: 25%;
+            text-align: right;
+        }
+        
+        .total-section {
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .grand-total {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #333;
+            font-size: 10px;
+        }
+        
+        .thank-you {
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h1>WINE X</h1>
+            <h2>Wine Shop & Bar</h2>
+            <p>123 Wine Street, City</p>
+            <p>Phone: +91 9876543210</p>
+        </div>
+        
+        <div class="info">
+            <div class="info-row">
+                <span>Order #:</span>
+                <span>{{ order_number }}</span>
+            </div>
+            <div class="info-row">
+                <span>Date:</span>
+                <span>{{ order.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            {% if order.token_number %}
+            <div class="info-row">
+                <span>Token:</span>
+                <span>#{{ order.token_number }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span>Type:</span>
+                <span>{{ order.get_order_type_display }}</span>
+            </div>
+            <div class="info-row">
+                <span>Status:</span>
+                <span>{{ order.get_status_display }}</span>
+            </div>
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="name">Item</th>
+                    <th class="qty">Qty</th>
+                    <th class="price">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td class="name">{{ item.name }}</td>
+                    <td class="qty">{{ item.quantity }}</td>
+                    <td class="price">₹{{ item.total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="total-section">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>₹{{ subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="total-row">
+                <span>Tax (10%):</span>
+                <span>₹{{ tax|floatformat:2 }}</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>TOTAL:</span>
+                <span>₹{{ total|floatformat:2 }}</span>
+            </div>
+        </div>
+        
+        {% if order.payment_method %}
+        <div class="info">
+            <div class="info-row">
+                <span>Payment:</span>
+                <span>{{ order.get_payment_method_display }}</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="thank-you">
+            THANK YOU FOR YOUR ORDER!
+        </div>
+        
+        <div class="footer">
+            <p>For any queries, contact: +91 9876543210</p>
+            <p>Visit again!</p>
+            <p>Receipt ID: {{ order_number }}</p>
+            <p>Printed: {% now "d/m/Y H:i" %}</p>
+        </div>
+    </div>
+</body>
+</html>

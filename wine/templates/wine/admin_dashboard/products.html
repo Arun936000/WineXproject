@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management - WineX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7e57c2;
+            --primary-dark: #5e35b1;
+            --secondary: #ff7043;
+            --light: #f5f7fa;
+            --dark: #263238;
+            --success: #66bb6a;
+            --danger: #ef5350;
+            --warning: #ffa726;
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.8s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .dashboard-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+            animation: slideUp 0.5s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #f4511e;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53935;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .product-table th {
+            background: var(--primary);
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .product-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-table tr {
+            transition: var(--transition);
+        }
+
+        .product-table tr:hover {
+            background: rgba(126, 87, 194, 0.05);
+        }
+
+        .product-table .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            background: rgba(255, 167, 38, 0.1);
+            color: var(--warning);
+        }
+
+        .edit-btn:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        .delete-btn {
+            background: rgba(239, 83, 80, 0.1);
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-in-stock {
+            background: rgba(102, 187, 106, 0.1);
+            color: var(--success);
+        }
+
+        .status-low-stock {
+            background: rgba(255, 167, 38, 0.1);
+            color: var(--warning);
+        }
+
+        .status-out-of-stock {
+            background: rgba(239, 83, 80, 0.1);
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #78909c;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px 0 0 10px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 0 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-bar button:hover {
+            background: var(--primary-dark);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-1 .stat-icon {
+            background: rgba(126, 87, 194, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-2 .stat-icon {
+            background: rgba(102, 187, 106, 0.1);
+            color: var(--success);
+        }
+
+        .stat-3 .stat-icon {
+            background: rgba(255, 112, 67, 0.1);
+            color: var(--secondary);
+        }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: #78909c;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #78909c;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-wine-bottle"></i>
+                <span>WineX</span>
+            </div>
+            <h1 class="dashboard-title">Product Management</h1>
+            <div class="user-actions">
+                <button class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </header>
+
+        <div class="stats-cards">
+            <div class="stat-card stat-1">
+                <div class="stat-icon">
+                    <i class="fas fa-wine-bottle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>42</h3>
+                    <p>Total Products</p>
+                </div>
+            </div>
+            <div class="stat-card stat-2">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>38</h3>
+                    <p>In Stock</p>
+                </div>
+            </div>
+            <div class="stat-card stat-3">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>4</h3>
+                    <p>Low Stock</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-plus-circle"></i> Add New Product
+                </h2>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" class="form-control" placeholder="Enter product name" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-price">Price ($)</label>
+                            <input type="number" id="product-price" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-stock">Stock</label>
+                            <input type="number" id="product-stock" class="form-control" placeholder="0" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <select id="product-category" class="form-control" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="red">Red Wine</option>
+                            <option value="white">White Wine</option>
+                            <option value="sparkling">Sparkling Wine</option>
+                            <option value="rose">Rosé Wine</option>
+                            <option value="dessert">Dessert Wine</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <textarea id="product-description" class="form-control" rows="3" placeholder="Enter product description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-image">Product Image</label>
+                        <input type="file" id="product-image" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                        <button type="button" class="btn btn-outline" id="reset-form">
+                            <i class="fas fa-redo"></i> Reset Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-list"></i> Product List
+                    </h2>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search products...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chardonnay Reserve</td>
+                            <td>$24.99</td>
+                            <td><span class="status-badge status-in-stock">In Stock</span></td>
+                            <td>White Wine</td>
+                            <td class="actions">
+                                <button class="action-btn edit-btn" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Merlot Classic</td>
+                            <td>$19.99</td>
+                            <td><span class="status-badge status-low-stock">Low Stock</span></td>
+                            <td>Red Wine</td>
+                            <td class="actions">
+                                <button class="action-btn edit-btn" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Prosecco Sparkling</td>
+                            <td>$29.99</td>
+                            <td><span class="status-badge status-in-stock">In Stock</span></td>
+                            <td>Sparkling Wine</td>
+                            <td class="actions">
+                                <button class="action-btn edit-btn" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Rosé Summer</td>
+                            <td>$17.99</td>
+                            <td><span class="status-badge status-out-of-stock">Out of Stock</span></td>
+                            <td>Rosé Wine</td>
+                            <td class="actions">
+                                <button class="action-btn edit-btn" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Porto Vintage</td>
+                            <td>$39.99</td>
+                            <td><span class="status-badge status-in-stock">In Stock</span></td>
+                            <td>Dessert Wine</td>
+                            <td class="actions">
+                                <button class="action-btn edit-btn" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Product</h2>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-product-form">
+                <div class="form-group">
+                    <label for="edit-product-name">Product Name</label>
+                    <input type="text" id="edit-product-name" class="form-control" value="Chardonnay Reserve" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-product-price">Price ($)</label>
+                        <input type="number" id="edit-product-price" class="form-control" value="24.99" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-product-stock">Stock</label>
+                        <input type="number" id="edit-product-stock" class="form-control" value="42" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-product-category">Category</label>
+                    <select id="edit-product-category" class="form-control" required>
+                        <option value="red">Red Wine</option>
+                        <option value="white" selected>White Wine</option>
+                        <option value="sparkling">Sparkling Wine</option>
+                        <option value="rose">Rosé Wine</option>
+                        <option value="dessert">Dessert Wine</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-product-description">Description</label>
+                    <textarea id="edit-product-description" class="form-control" rows="3">A premium Chardonnay with notes of oak and citrus.</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-product-image">Product Image</label>
+                    <input type="file" id="edit-product-image" class="form-control">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Form submission
+        document.getElementById('product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real application, you would send the form data to the server here
+            alert('Product saved successfully!');
+            this.reset();
+        });
+        
+        // Reset form button
+        document.getElementById('reset-form').addEventListener('click', function() {
+            document.getElementById('product-form').reset();
+        });
+        
+        // Edit modal functions
+        function openEditModal() {
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+        
+        // Edit form submission
+        document.getElementById('edit-product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real application, you would send the updated data to the server here
+            alert('Product updated successfully!');
+            closeEditModal();
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('edit-modal');
+            if (e.target === modal) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>

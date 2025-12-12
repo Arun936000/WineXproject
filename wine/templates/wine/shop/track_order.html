@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Track Order</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: lightgray;
+            color: black;
+        }
+        .step.done .step-circle {
+            background-color: #7e1c2f;
+            color: white;
+        }
+        .step-line {
+            width: 3px;
+            height: 30px;
+            background-color: lightgray;
+            margin-left: 14px;
+        }
+        .step.done .step-line {
+            background-color: #7e1c2f;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container py-4">
+
+    <a href="/shop/" class="btn btn-outline-dark mb-3">← Back to Shop</a>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3">Track Your Order</h4>
+
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Order Type:</strong> {{ order.get_order_type_display }}</p>
+            <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+            <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+
+            {% if order.order_type == "delivery" %}
+                <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+                <p><strong>Expected Delivery:</strong> {{ order.expected_delivery }}</p>
+            {% endif %}
+
+            {% if order.order_type == "pickup" %}
+                <p><strong>Pickup Token Number:</strong> 
+                    <span class="badge bg-primary fs-5">{{ order.token_number }}</span>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5>Order Progress</h5><hr>
+
+            {% for step in steps %}
+            <div class="step {% if forloop.counter0 <= current_step_index %}done{% endif %}">
+                <div class="step-circle">{{ forloop.counter }}</div>
+                <div class="ms-3">{{ step.label }}</div>
+            </div>
+
+            {% if not forloop.last %}
+                <div class="step-line"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - Wine X Staff</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7e1c2f;
+            --primary-light: #9d4354;
+            --secondary: #2c3e50;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 10px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            color: var(--primary);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-title p {
+            color: var(--gray);
+            margin: 0;
+        }
+
+        /* Filters Section */
+        .filters-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Order Cards */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .order-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .order-card.pending { border-left-color: var(--warning); }
+        .order-card.preparing { border-left-color: var(--info); }
+        .order-card.ready { border-left-color: var(--success); }
+        .order-card.completed { border-left-color: var(--gray); }
+
+        .order-header {
+            padding: 20px;
+            background: var(--light);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-number {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .order-token {
+            background: var(--dark);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .order-body {
+            padding: 20px;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .order-items {
+            margin: 15px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .item-name {
+            flex: 1;
+        }
+
+        .item-qty {
+            margin: 0 10px;
+            color: var(--gray);
+        }
+
+        .item-price {
+            font-weight: 500;
+        }
+
+        .order-footer {
+            padding: 15px 20px;
+            background: var(--light);
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-select {
+            min-width: 150px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-preparing { background: #cce5ff; color: #004085; }
+        .badge-ready { background: #d4edda; color: #155724; }
+        .badge-completed { background: #d1ecf1; color: #0c5460; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+
+        /* Navigation */
+        .staff-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: var(--light);
+            border-radius: 50px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Print Modal */
+        .print-modal .modal-content {
+            border-radius: var(--radius);
+            border: none;
+        }
+
+        .print-preview {
+            background: white;
+            padding: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-header h3 {
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .receipt-body {
+            margin-bottom: 20px;
+        }
+
+        .receipt-footer {
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card {
+            animation: slideIn 0.3s ease forwards;
+            animation-delay: calc(var(--i) * 0.1s);
+            opacity: 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Scrollbar Styling */
+        .order-items::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .order-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .order-items::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        .order-items::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1><i class="fas fa-shopping-cart me-2"></i>Manage Orders</h1>
+                <p>Track and manage all customer orders</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                </a>
+                <a href="#" class="btn btn-primary" onclick="printAllReadyOrders()">
+                    <i class="fas fa-print me-1"></i> Print All Ready
+                </a>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="staff-nav">
+            <div class="nav-links">
+                <a href="{% url 'staff_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{% url 'manage_orders' %}" class="nav-link active">
+                    <i class="fas fa-shopping-cart"></i> All Orders
+                    <span class="badge bg-primary">{{ all_count }}</span>
+                </a>
+                <a href="{% url 'manage_orders' %}?status=pending" class="nav-link">
+                    <i class="fas fa-clock"></i> Pending
+                    <span class="badge bg-warning">{{ pending_count }}</span>
+                </a>
+                <a href="{% url 'manage_orders' %}?status=preparing" class="nav-link">
+                    <i class="fas fa-cogs"></i> Preparing
+                    <span class="badge bg-info">{{ preparing_count }}</span>
+                </a>
+                <a href="{% url 'manage_orders' %}?status=ready" class="nav-link">
+                    <i class="fas fa-check-circle"></i> Ready
+                    <span class="badge bg-success">{{ ready_count }}</span>
+                </a>
+                <a href="{% url 'view_products' %}" class="nav-link">
+                    <i class="fas fa-wine-bottle"></i> Products
+                </a>
+                <a href="{% url 'manage_customers' %}" class="nav-link">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+            </div>
+        </nav>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form method="GET" class="filter-group">
+                <div>
+                    <label class="form-label">Order Status</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Order Type</label>
+                    <select name="type" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {% if order_type_filter == 'all' %}selected{% endif %}>All Types</option>
+                        {% for value, label in order_type_choices %}
+                        <option value="{{ value }}" {% if order_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label">Date Range</label>
+                    <select name="date" class="form-select" onchange="this.form.submit()">
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="yesterday" {% if date_filter == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                        <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="all" {% if date_filter == 'all' %}selected{% endif %}>All Time</option>
+                    </select>
+                </div>
+
+                <div class="flex-grow-1">
+                    <label class="form-label">Search</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search orders..." name="search" value="{{ search_query }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="align-self-end">
+                    <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'manage_orders' %}'">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Orders Grid -->
+        {% if orders %}
+        <div class="orders-grid">
+            {% for order in orders %}
+            <div class="order-card {{ order.status }}" style="--i: {{ forloop.counter0 }}">
+                <div class="order-header">
+                    <div class="order-number">
+                        <i class="fas fa-receipt me-1"></i>
+                        ORD-{{ order.id.hex|slice:":8"|upper }}
+                    </div>
+                    {% if order.token_number %}
+                    <div class="order-token">
+                        <i class="fas fa-ticket-alt me-1"></i>
+                        #{{ order.token_number }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="order-body">
+                    <!-- Customer Info -->
+                    <div class="customer-info">
+                        <div class="customer-avatar">
+                            {% if order.user %}
+                                {{ order.user.username|first|upper }}
+                            {% else %}
+                                G
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                {% if order.user %}
+                                    {{ order.user.full_name|default:order.user.username }}
+                                {% else %}
+                                    Guest Customer
+                                {% endif %}
+                            </h6>
+                            <p class="mb-0 text-muted">
+                                <i class="fas fa-phone me-1"></i>{{ order.phone_number }}
+                            </p>
+                        </div>
+                        <span class="badge {% if order.order_type == 'delivery' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ order.get_order_type_display }}
+                        </span>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div class="order-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Order Time</span>
+                            <span class="detail-value">{{ order.created_at|time:"H:i" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Amount</span>
+                            <span class="detail-value">₹{{ order.total_amount }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Items</span>
+                            <span class="detail-value">{{ order.items.count }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Payment</span>
+                            <span class="detail-value">
+                                {% if order.payment_set.first %}
+                                    {{ order.payment_set.first.get_payment_method_display }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="order-items">
+                        {% for item in order.items.all|slice:":3" %}
+                        <div class="item-row">
+                            <span class="item-name">{{ item.get_item_name|truncatechars:30 }}</span>
+                            <span class="item-qty">×{{ item.quantity }}</span>
+                            <span class="item-price">₹{{ item.price }}</span>
+                        </div>
+                        {% endfor %}
+                        {% if order.items.count > 3 %}
+                        <div class="item-row text-center text-muted">
+                            <small>+ {{ order.items.count|add:"-3" }} more items</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <span class="status-badge 
+                            {% if order.status == 'pending' %}badge-pending
+                            {% elif order.status == 'preparing' %}badge-preparing
+                            {% elif order.status == 'ready' %}badge-ready
+                            {% elif order.status == 'completed' %}badge-completed
+                            {% endif %}">
+                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <form method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <select name="status" class="form-select status-select" 
+                                    onchange="updateOrderStatus(this, '{{ order.id }}')"
+                                    data-order-id="{{ order.id }}">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                <option value="ready" {% if order.status == 'ready' %}selected{% endif %}>Ready</option>
+                                <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </form>
+
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="viewOrderDetails('{{ order.id }}')"
+                                    title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" 
+                                    onclick="printOrderReceipt('{{ order.id }}')"
+                                    title="Print Receipt">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <a href="{% url 'order_detail' order.id %}" 
+                               class="btn btn-sm btn-outline-info"
+                               title="Edit Order">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No Orders Found</h3>
+            <p class="text-muted">No orders match your current filters.</p>
+            <a href="{% url 'manage_orders' %}" class="btn btn-primary">
+                <i class="fas fa-redo me-1"></i> Reset Filters
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if orders.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if orders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for i in orders.paginator.page_range %}
+                    {% if orders.number == i %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {{ i }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if orders.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Print Modal -->
+    <div class="modal fade print-modal" id="printModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Print Receipt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="printContent">
+                    <!-- Receipt content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update order status via AJAX
+        function updateOrderStatus(select, orderId) {
+            const newStatus = select.value;
+            
+            // Confirm for certain status changes
+            if (newStatus === 'completed' || newStatus === 'cancelled') {
+                if (!confirm(`Are you sure you want to mark this order as ${newStatus}?`)) {
+                    select.value = select.getAttribute('data-current-status') || 'pending';
+                    return;
+                }
+            }
+            
+            // Show loading
+            select.disabled = true;
+            const originalHtml = select.innerHTML;
+            select.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            // Send AJAX request
+            fetch("{% url 'quick_status_update' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status badge
+                    const badge = select.closest('.order-footer').querySelector('.status-badge');
+                    badge.className = `status-badge badge-${newStatus}`;
+                    badge.innerHTML = `<i class="fas fa-circle me-1" style="font-size: 8px;"></i>${data.status_display}`;
+                    
+                    // Update card border
+                    const card = select.closest('.order-card');
+                    card.className = `order-card ${newStatus}`;
+                    
+                    // Show success message
+                    showToast(`Order ${orderId.slice(0,8)} updated to ${data.status_display}`, 'success');
+                    
+                    // If status is ready, show print option
+                    if (newStatus === 'ready') {
+                        setTimeout(() => {
+                            if (confirm('Order is now ready. Would you like to print the receipt?')) {
+                                printOrderReceipt(orderId);
+                            }
+                        }, 500);
+                    }
+                } else {
+                    showToast('Error updating order status', 'error');
+                    select.value = select.getAttribute('data-current-status') || 'pending';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error updating order status', 'error');
+                select.value = select.getAttribute('data-current-status') || 'pending';
+            })
+            .finally(() => {
+                select.disabled = false;
+                select.innerHTML = originalHtml;
+            });
+        }
+
+        // Print order receipt
+        function printOrderReceipt(orderId) {
+            fetch(`/staff/orders/${orderId}/print/`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('printContent').innerHTML = data;
+                    new bootstrap.Modal(document.getElementById('printModal')).show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error loading receipt', 'error');
+                });
+        }
+
+        // Print all ready orders
+        function printAllReadyOrders() {
+            fetch("{% url 'manage_orders' %}?status=ready")
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+                    const orders = doc.querySelectorAll('.order-card.ready');
+                    
+                    if (orders.length === 0) {
+                        alert('No orders are ready for pickup.');
+                        return;
+                    }
+                    
+                    let receiptContent = `
+                        <div class="print-preview">
+                            <div class="receipt-header">
+                                <h3>Wine X</h3>
+                                <p>Ready for Pickup Orders</p>
+                                <p>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+                            </div>
+                            <div class="receipt-body">
+                    `;
+                    
+                    orders.forEach(order => {
+                        const orderNumber = order.querySelector('.order-number').textContent;
+                        const token = order.querySelector('.order-token')?.textContent || 'No Token';
+                        const customer = order.querySelector('.customer-info h6').textContent;
+                        
+                        receiptContent += `
+                            <div style="border-bottom: 1px dashed #ccc; padding: 10px 0; margin: 10px 0;">
+                                <strong>${orderNumber}</strong><br>
+                                <small>Token: ${token}</small><br>
+                                <small>Customer: ${customer}</small>
+                            </div>
+                        `;
+                    });
+                    
+                    receiptContent += `
+                            </div>
+                            <div class="receipt-footer">
+                                <p>Total Ready Orders: ${orders.length}</p>
+                                <small>Generated by Staff: {{ request.user.username }}</small>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('printContent').innerHTML = receiptContent;
+                    new bootstrap.Modal(document.getElementById('printModal')).show();
+                });
+        }
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            window.location.href = `/staff/orders/${orderId}/`;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        }
+
+        // Auto-refresh orders every 30 seconds
+        setInterval(() => {
+            if (!document.hidden) {
+                location.reload();
+            }
+        }, 30000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Alt + R: Refresh
+            if (e.altKey && e.key === 'r') {
+                location.reload();
+            }
+            // Alt + P: Print all ready
+            if (e.altKey && e.key === 'p') {
+                printAllReadyOrders();
+            }
+            // Alt + D: Dashboard
+            if (e.altKey && e.key === 'd') {
+                window.location.href = "{% url 'staff_dashboard' %}";
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation delays
+            const cards = document.querySelectorAll('.order-card');
+            cards.forEach((card, index) => {
+                card.style.setProperty('--i', index);
+            });
+            
+            // Store current status on select elements
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.setAttribute('data-current-status', select.value);
+            });
+            
+            // Check for new orders
+            checkNewOrders();
+        });
+
+        // Check for new orders
+        function checkNewOrders() {
+            fetch('/staff/orders/?status=pending&count_only=true')
+                .then(response => response.json())
+                .then(data => {
+                    const currentCount = {{ pending_count }};
+                    if (data.count > currentCount) {
+                        showToast(`You have ${data.count - currentCount} new pending orders!`, 'warning');
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

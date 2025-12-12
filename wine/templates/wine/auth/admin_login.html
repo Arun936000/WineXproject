@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wine X - Admin Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --wine-dark: #4a001f;
+        --wine-medium: #7d2b3d;
+        --wine-light: #b56b7f;
+        --gold: #d4af37;
+        --cream: #fff5e6;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(to bottom right, #2a1301, #4e2901);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Animated background elements */
+      .wine-bubble {
+        position: absolute;
+        background: rgba(180, 107, 127, 0.15);
+        border-radius: 50%;
+        animation: float 15s infinite ease-in-out;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(10deg);
+        }
+      }
+
+      .grape-cluster {
+        position: absolute;
+        width: 40px;
+        height: 60px;
+        background: var(--wine-dark);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        opacity: 0.2;
+        animation: sway 20s infinite alternate ease-in-out;
+      }
+
+      @keyframes sway {
+        0% {
+          transform: translateX(-5px) rotate(-5deg);
+        }
+        100% {
+          transform: translateX(5px) rotate(5deg);
+        }
+      }
+
+      .login-container {
+        width: 100%;
+        max-width: 450px;
+        padding: 20px;
+      }
+
+      .login-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        animation: cardAppear 0.8s ease forwards;
+      }
+
+      @keyframes cardAppear {
+        0% {
+          opacity: 0;
+          transform: translateY(20px) rotateX(10deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) rotateX(0);
+        }
+      }
+
+      .logo-container {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .logo {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--cream);
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        letter-spacing: 2px;
+        position: relative;
+        display: inline-block;
+      }
+
+      .logo::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--gold);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.5s ease;
+      }
+
+      .logo:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+
+      .wine-glass {
+        display: block;
+        margin: 0 auto 15px;
+        font-size: 3rem;
+        color: var(--gold);
+        animation: shine 3s infinite alternate;
+      }
+
+      @keyframes shine {
+        0% {
+          text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(212, 175, 55, 0.9);
+        }
+      }
+
+      h2 {
+        text-align: center;
+        color: var(--cream);
+        margin-bottom: 30px;
+        font-weight: 300;
+        letter-spacing: 1px;
+        position: relative;
+      }
+
+      h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 2px;
+        background: var(--gold);
+      }
+
+      .alert {
+        border-radius: 10px;
+        background: rgba(220, 53, 69, 0.2);
+        border: none;
+        color: var(--cream);
+        backdrop-filter: blur(5px);
+        animation: shake 0.5s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      .form-label {
+        color: var(--cream);
+        margin-bottom: 8px;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+      }
+
+      .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: var(--cream);
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--wine-light);
+        box-shadow: 0 0 0 0.25rem rgba(180, 107, 127, 0.25);
+        color: var(--cream);
+      }
+
+      .form-control::placeholder {
+        color: rgba(255, 245, 230, 0.6);
+      }
+
+      .input-group-text {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-right: none;
+        color: var(--cream);
+      }
+
+      .btn-login {
+        background: linear-gradient(
+          45deg,
+          var(--wine-dark),
+          var(--wine-medium)
+        );
+        border: none;
+        border-radius: 10px;
+        color: var(--cream);
+        padding: 12px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .btn-login::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          45deg,
+          var(--wine-medium),
+          var(--wine-light)
+        );
+        transition: all 0.4s ease;
+        z-index: -1;
+      }
+
+      .btn-login:hover::before {
+        left: 0;
+      }
+
+      .btn-login:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .links-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .auth-link {
+        color: var(--cream);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .auth-link i {
+        margin-right: 5px;
+        transition: transform 0.3s ease;
+      }
+
+      .auth-link:hover {
+        color: var(--gold);
+      }
+
+      .auth-link:hover i {
+        transform: translateX(-3px);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .login-container {
+          padding: 15px;
+        }
+
+        .login-card {
+          padding: 30px 20px;
+        }
+
+        .links-container {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .auth-link {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated background elements -->
+    <div
+      class="wine-bubble"
+      style="
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+      "
+    ></div>
+    <div
+      class="wine-bubble"
+      style="
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        right: 15%;
+        animation-delay: 1s;
+      "
+    ></div>
+    <div
+      class="wine-bubble"
+      style="
+        width: 100px;
+        height: 100px;
+        bottom: 15%;
+        left: 20%;
+        animation-delay: 2s;
+      "
+    ></div>
+    <div class="grape-cluster" style="top: 15%; left: 5%"></div>
+    <div
+      class="grape-cluster"
+      style="top: 70%; right: 10%; animation-delay: 1s"
+    ></div>
+
+    <div class="login-container">
+      <div class="login-card">
+        <div class="logo-container">
+          <div class="wine-glass">
+            <i class="fas fa-crown"></i>
+          </div>
+          <div class="logo">WINE X</div>
+        </div>
+
+        <h2>Administrator Access</h2>
+
+        <!-- Simulated Django messages -->
+        <div class="alert alert-danger" style="display: none">
+          Invalid credentials. Please try again.
+        </div>
+
+        {% if messages %} {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+        {% endfor %} {% endif %}
+
+        <form method="POST" action="{% url 'admin_login' %}">
+          {% csrf_token %}
+          <div class="mb-4">
+            <label for="admin-username" class="form-label">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="admin-username"
+                name="username"
+                placeholder="Enter admin username"
+                required
+              />
+            </div>
+          </div>
+          <div class="mb-4">
+            <label for="admin-password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input
+                type="password"
+                class="form-control"
+                id="admin-password"
+                name="password"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-login w-100 mb-4">
+            <i class="fas fa-sign-in-alt me-2"></i> Login to Dashboard
+          </button>
+        </form>
+
+        <div class="links-container">
+          <a href="{% url 'home' %}" class="auth-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+          </a>
+          <a href="#" class="auth-link">
+            <i class="fas fa-question-circle"></i> Forgot Password?
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        for (let i = 0; i < 5; i++) {
+          const size = Math.random() * 40 + 20;
+          const bubble = document.createElement("div");
+          bubble.classList.add("wine-bubble");
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          bubble.style.top = `${Math.random() * 100}%`;
+          bubble.style.left = `${Math.random() * 100}%`;
+          bubble.style.animationDelay = `${Math.random() * 5}s`;
+          document.body.appendChild(bubble);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const alerts = document.querySelectorAll(".alert");
+        alerts.forEach((alert) => {
+          setTimeout(() => {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+            bsAlert.close();
+          }, 6000); // 3 seconds
+        });
+      });
+      
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

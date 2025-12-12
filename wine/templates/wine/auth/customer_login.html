@@ -1,0 +1,1061 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - Wine X</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+<style>
+    :root {
+        --wine-primary: #8b0000;
+        --wine-secondary: #660000;
+        --wine-light: #b22222;
+        --gold-accent: #ffd700;
+        --cream-bg: #fffaf0;
+        --dark-bg: #1a0a0a;
+        --card-bg: rgba(255, 255, 255, 0.98);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: #000;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* HD Background Carousel */
+    .background-carousel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+    }
+
+    .carousel-slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+    }
+
+    .carousel-slide.active {
+        opacity: 1;
+    }
+
+    /* Overlay gradient */
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, 
+            rgba(26, 10, 10, 0.7) 0%, 
+            rgba(26, 10, 10, 0.8) 50%, 
+            rgba(26, 10, 10, 0.9) 100%);
+    }
+
+    /* Toast Notification */
+    .toast-container-custom {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 350px;
+    }
+
+    .toast-custom {
+        background: white;
+        border-radius: 10px;
+        padding: 16px 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        animation: slideInRight 0.5s ease-out;
+        border-left: 4px solid #dc3545;
+        max-width: 350px;
+        transition: all 0.3s ease;
+    }
+
+    .toast-custom.success {
+        border-left-color: #28a745;
+    }
+
+    .toast-custom.warning {
+        border-left-color: #ffc107;
+    }
+
+    .toast-custom.info {
+        border-left-color: #17a2b8;
+    }
+
+    .toast-icon {
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .toast-custom.error .toast-icon {
+        color: #dc3545;
+    }
+
+    .toast-custom.success .toast-icon {
+        color: #28a745;
+    }
+
+    .toast-custom.warning .toast-icon {
+        color: #ffc107;
+    }
+
+    .toast-custom.info .toast-icon {
+        color: #17a2b8;
+    }
+
+    .toast-content {
+        flex: 1;
+    }
+
+    .toast-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #333;
+        font-size: 15px;
+    }
+
+    .toast-message {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+
+    .toast-close:hover {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .toast-custom.hiding {
+        animation: slideOutRight 0.5s ease-in forwards;
+    }
+
+    /* HORIZONTAL Login Container - UPDATED */
+    .login-horizontal-container {
+        position: relative;
+        width: 90%;
+        max-width: 1100px;
+        height: 630px;
+        z-index: 10;
+        animation: slideIn 0.8s ease-out;
+        display: flex;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Left Side - Brand Section */
+    .brand-section {
+        flex: 1;
+        background: linear-gradient(135deg, var(--wine-primary), var(--wine-secondary));
+        border-radius: 20px 0 0 20px;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .brand-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15;
+    }
+
+    .brand-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .brand-logo {
+        font-family: 'Georgia', serif;
+        font-size: 48px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-tagline {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .brand-features {
+        list-style: none;
+        margin-top: 30px;
+    }
+
+    .brand-features li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .brand-features li i {
+        margin-right: 12px;
+        color: var(--gold-accent);
+        font-size: 18px;
+    }
+
+    .login-section {
+        flex: 1.2;
+        background: var(--card-bg);
+        border-radius: 0 20px 20px 0;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    .login-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    .login-header {
+        margin-bottom: 30px; 
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .login-title {
+        font-size: 32px;
+        color: var(--wine-primary);
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .login-subtitle {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    /* Form container - UPDATED */
+    .form-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 0; /* Important for flexbox scrolling */
+    }
+
+    /* Form Elements - UPDATED */
+    .form-row-horizontal {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; 
+        margin-bottom: 15px;
+    }
+
+    .form-group-horizontal {
+        margin-bottom: 0;
+    }
+
+    .form-label-horizontal {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .input-with-icon-horizontal {
+        position: relative;
+    }
+
+    .input-icon-horizontal {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--wine-primary);
+        font-size: 18px;
+        z-index: 2;
+    }
+
+    .form-control-horizontal {
+        width: 100%;
+        padding: 10px 10px 10px 48px; 
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        color: #333;
+        background: white;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .form-control-horizontal:focus {
+        outline: none;
+        border-color: var(--wine-primary);
+        box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+    }
+
+    .form-control-horizontal::placeholder {
+        color: #999;
+        font-weight: 400;
+    }
+
+    /* Password Toggle */
+    .password-toggle-btn-horizontal {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 16px;
+        transition: color 0.3s;
+    }
+
+    .password-toggle-btn-horizontal:hover {
+        color: var(--wine-primary);
+    }
+
+    /* Options Row - UPDATED */
+    .options-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0 25px 0; /* Reduced margins */
+        flex-shrink: 0;
+    }
+
+    .remember-me-horizontal {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .custom-checkbox-horizontal {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .custom-checkbox-horizontal.checked {
+        background: var(--wine-primary);
+        border-color: var(--wine-primary);
+    }
+
+    .custom-checkbox-horizontal.checked::after {
+        content: '✓';
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .checkbox-label-horizontal {
+        color: #666;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .forgot-link-horizontal {
+        color: var(--wine-primary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .forgot-link-horizontal:hover {
+        color: var(--wine-secondary);
+        text-decoration: underline;
+    }
+
+    /* Login Button - UPDATED */
+    .btn-login-horizontal {
+        width: 100%;
+        padding: 14px; 
+        background: linear-gradient(135deg, var(--wine-primary), var(--wine-secondary));
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 17px; 
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 10px 20px rgba(139, 0, 0, 0.2);
+        margin-bottom: 5px; 
+        flex-shrink: 0;
+    }
+
+    .btn-login-horizontal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(139, 0, 0, 0.3);
+    }
+
+    /* Divider - UPDATED */
+    .divider-horizontal {
+        display: flex;
+        align-items: center;
+        margin: 20px 0; 
+        color: #999;
+        flex-shrink: 0;
+    }
+
+    .divider-line-horizontal {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, transparent, #ddd, transparent);
+    }
+
+    .divider-text-horizontal {
+        padding: 0 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Signup Button - UPDATED */
+    .btn-signup-horizontal {
+        width: 100%;
+        padding: 15px; 
+        background: white;
+        border: 2px solid var(--wine-primary);
+        border-radius: 10px;
+        color: var(--wine-primary);
+        font-size: 15px; 
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 5px;
+        flex-shrink: 0;
+    }
+
+    .btn-signup-horizontal:hover {
+        background: var(--wine-primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Footer Links - FIXED POSITION */
+    .login-footer-horizontal {
+        text-align: center;
+        margin-top: 0; /* Changed from 30px */
+        padding-top: 15px; /* Reduced from 20px */
+        border-top: 1px solid #eee;
+        flex-shrink: 0;
+        width: 100%;
+    }
+
+    .footer-link-horizontal {
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        margin: 0 12px; /* Reduced from 15px */
+        transition: color 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .footer-link-horizontal:hover {
+        color: var(--wine-primary);
+    }
+
+    /* Back Home Button */
+    .back-home-horizontal {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        z-index: 20;
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s;
+    }
+
+    .back-home-horizontal:hover {
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--gold-accent);
+        transform: translateX(-5px);
+    }
+
+    /* NEW: Main form wrapper to control spacing */
+    .main-form-wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Responsive for Horizontal Layout - UPDATED */
+    @media (max-width: 1200px) {
+        .login-horizontal-container {
+            width: 95%;
+            height: 500px;
+        }
+        
+        .brand-section,
+        .login-section {
+            padding: 40px 35px; /* Adjusted */
+        }
+    }
+
+    @media (max-width: 992px) {
+        .login-horizontal-container {
+            flex-direction: column;
+            height: auto;
+            max-width: 500px;
+        }
+        
+        .brand-section {
+            border-radius: 20px 20px 0 0;
+            padding: 40px;
+        }
+        
+        .login-section {
+            border-radius: 0 0 20px 20px;
+            padding: 40px;
+        }
+        
+        .brand-logo {
+            font-size: 36px;
+        }
+        
+        .login-content-wrapper {
+            height: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .login-horizontal-container {
+            width: 90%;
+            margin: 20px 0;
+        }
+        
+        .brand-section,
+        .login-section {
+            padding: 30px 25px; /* Adjusted */
+        }
+        
+        .back-home-horizontal {
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .options-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .login-header {
+            margin-bottom: 25px;
+        }
+        
+        .toast-container-custom {
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            max-width: none;
+        }
+        
+        .toast-custom {
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .login-horizontal-container {
+            width: 95%;
+        }
+        
+        .brand-section,
+        .login-section {
+            padding: 25px 20px; /* Adjusted */
+        }
+        
+        .brand-logo {
+            font-size: 32px;
+        }
+        
+        .login-title {
+            font-size: 28px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+        }
+        
+        .btn-login-horizontal,
+        .btn-signup-horizontal {
+            padding: 14px;
+        }
+    }
+
+    /* NEW: Ensure everything fits properly */
+    @media (max-height: 700px) {
+        .login-horizontal-container {
+            height: 500px;
+        }
+        
+        .login-section {
+            padding: 40px 30px;
+        }
+        
+        .login-header {
+            margin-bottom: 20px;
+        }
+        
+        .form-row-horizontal {
+            gap: 15px;
+        }
+        
+        .options-row {
+            margin: 15px 0 20px 0;
+        }
+        
+        .btn-login-horizontal {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <!-- HD Background Carousel -->
+    <div class="background-carousel">
+        <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="overlay"></div>
+    </div>
+
+    <!-- Back Home Button -->
+    <a href="{% url 'home' %}" class="back-home-horizontal">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+
+    <!-- HORIZONTAL Login Container -->
+    <div class="login-horizontal-container">
+        <!-- Left Side - Brand Section -->
+        <div class="brand-section">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <div class="brand-logo">Wine X</div>
+                <p class="brand-tagline">
+                    Discover premium wines from around the world. 
+                    Join thousands of wine enthusiasts in our exclusive community.
+                </p>
+                
+                <ul class="brand-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Premium wine selection from global vineyards
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Expert recommendations and tasting notes
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Fast and secure delivery to your doorstep
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        Exclusive members-only events and offers
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-section">
+            <div class="login-content-wrapper">
+                <div>
+                    <!-- Header section -->
+                    <div class="login-header">
+                        <h2 class="login-title">Welcome Back</h2>
+                        <p class="login-subtitle">Sign in to your customer account</p>
+                    </div>
+
+                    <form method="POST" action="{% url 'customer_login' %}" id="loginFormHorizontal">
+                        {% csrf_token %}
+                        
+                        {% if next %}
+                            <input type="hidden" name="next" value="{{ next }}">
+                        {% endif %}
+
+                        <div class="main-form-wrapper">
+                            <div class="form-row-horizontal">
+                                <div class="form-group-horizontal">
+                                    <label class="form-label-horizontal">Username or Email</label>
+                                    <div class="input-with-icon-horizontal">
+                                        <i class="input-icon-horizontal fas fa-user"></i>
+                                        <input type="text" 
+                                               class="form-control-horizontal" 
+                                               id="username_horizontal" 
+                                               name="username" 
+                                               placeholder="Enter your username or email" 
+                                               required
+                                               value="{{ request.POST.username|default:'' }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group-horizontal">
+                                    <label class="form-label-horizontal">Password</label>
+                                    <div class="input-with-icon-horizontal">
+                                        <i class="input-icon-horizontal fas fa-lock"></i>
+                                        <input type="password" 
+                                               class="form-control-horizontal" 
+                                               id="password_horizontal" 
+                                               name="password" 
+                                               placeholder="Enter your password" 
+                                               required>
+                                        <button type="button" class="password-toggle-btn-horizontal" onclick="togglePasswordHorizontal()">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="options-row">
+                                <div class="remember-me-horizontal">
+                                    <div class="custom-checkbox-horizontal" id="rememberCheckboxHorizontal"></div>
+                                    <input type="checkbox" id="remember_horizontal" name="remember" style="display: none;">
+                                    <label for="remember_horizontal" class="checkbox-label-horizontal">Remember me</label>
+                                </div>
+                                <a href="#" class="forgot-link-horizontal">Forgot Password?</a>
+                            </div>
+
+                            <button type="submit" class="btn-login-horizontal">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In to Account
+                            </button>
+
+                            <div class="divider-horizontal">
+                                <div class="divider-line-horizontal"></div>
+                                <div class="divider-text-horizontal">New to Wine X?</div>
+                                <div class="divider-line-horizontal"></div>
+                            </div>
+
+                            <a href="{% url 'customer_signup' %}" class="btn-signup-horizontal">
+                                <i class="fas fa-user-plus"></i>
+                                Create New Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer Links - Now properly positioned -->
+                <div class="login-footer-horizontal">
+                    <a href="{% url 'admin_login' %}" class="footer-link-horizontal">
+                        <i class="fas fa-crown"></i>
+                        Admin Login
+                    </a>
+                    <a href="#" class="footer-link-horizontal">
+                        <i class="fas fa-question-circle"></i>
+                        Need Help?
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Background Carousel
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        
+        function changeSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        
+        setInterval(changeSlide, 5000);
+        
+        // Password Toggle
+        function togglePasswordHorizontal() {
+            const passwordInput = document.getElementById('password_horizontal');
+            const toggleBtn = document.querySelector('.password-toggle-btn-horizontal i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.classList.remove('fa-eye');
+                toggleBtn.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.classList.remove('fa-eye-slash');
+                toggleBtn.classList.add('fa-eye');
+            }
+        }
+        
+        // Custom Checkbox
+        const rememberCheckboxHorizontal = document.getElementById('rememberCheckboxHorizontal');
+        const rememberInputHorizontal = document.getElementById('remember_horizontal');
+        
+        rememberCheckboxHorizontal.addEventListener('click', function() {
+            if (rememberCheckboxHorizontal.classList.contains('checked')) {
+                rememberCheckboxHorizontal.classList.remove('checked');
+                rememberInputHorizontal.checked = false;
+            } else {
+                rememberCheckboxHorizontal.classList.add('checked');
+                rememberInputHorizontal.checked = true;
+            }
+        });
+        
+        // Toast Notification Functions
+        function showToast(message, type = 'info', title = null) {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-custom ${type}`;
+            
+            // Set icon based on type
+            let icon = 'info-circle';
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    title = title || 'Success';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    title = title || 'Error';
+                    break;
+                case 'warning':
+                    icon = 'exclamation-triangle';
+                    title = title || 'Warning';
+                    break;
+                default:
+                    icon = 'info-circle';
+                    title = title || 'Info';
+            }
+            
+            toast.innerHTML = `
+                <i class="toast-icon fas fa-${icon}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="removeToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    removeToast(toast.querySelector('.toast-close'));
+                }
+            }, 5000);
+            
+            return toast;
+        }
+        
+        function removeToast(closeButton) {
+            const toast = closeButton.closest('.toast-custom');
+            if (toast) {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 500);
+            }
+        }
+        
+        // Display Django messages as toasts
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    showToast('{{ message|escapejs }}', 'success', 'Success');
+                {% elif message.tags == 'error' %}
+                    showToast('{{ message|escapejs }}', 'error', 'Error');
+                {% elif message.tags == 'warning' %}
+                    showToast('{{ message|escapejs }}', 'warning', 'Warning');
+                {% else %}
+                    showToast('{{ message|escapejs }}', 'info', 'Info');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        
+        // Form Validation
+        document.getElementById('loginFormHorizontal').addEventListener('submit', function(e) {
+            const password = document.getElementById('password_horizontal').value;
+            const username = document.getElementById('username_horizontal').value;
+            let hasError = false;
+            
+            // Clear previous error toasts
+            const toastContainer = document.getElementById('toastContainer');
+            const errorToasts = toastContainer.querySelectorAll('.toast-custom.error');
+            errorToasts.forEach(toast => {
+                if (toast.parentNode) {
+                    removeToast(toast.querySelector('.toast-close'));
+                }
+            });
+            
+            // Validate username
+            if (!username.trim()) {
+                showToast('Please enter your username or email', 'error', 'Validation Error');
+                document.getElementById('username_horizontal').focus();
+                hasError = true;
+            }
+            
+            // Validate password
+            if (!password.trim()) {
+                showToast('Please enter your password', 'error', 'Validation Error');
+                if (!hasError) {
+                    document.getElementById('password_horizontal').focus();
+                }
+                hasError = true;
+            } else if (password.length < 6) {
+                showToast('Password must be at least 6 characters long', 'error', 'Validation Error');
+                if (!hasError) {
+                    document.getElementById('password_horizontal').focus();
+                }
+                hasError = true;
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+            }
+        });
+        
+        // Focus on username field if empty on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameField = document.getElementById('username_horizontal');
+            if (usernameField && !usernameField.value.trim()) {
+                usernameField.focus();
+            }
+        });
+    </script>
+</body>
+</html>

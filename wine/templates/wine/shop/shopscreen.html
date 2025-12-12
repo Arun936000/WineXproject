@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>WineX Kiosk - In-Shop Ordering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* RESET AND BASE STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7e1c2f;
+            --primary-light: #9d4354;
+            --primary-dark: #5a1322;
+            --secondary: #2c3e50;
+            --accent: #e94560;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 16px;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --shadow-light: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* KIOSK OPTIMIZED STYLES */
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Main Container */
+        .kiosk-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        /* Glass Effect Panels */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ========== LEFT SIDEBAR ========== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 900;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            animation: logoPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Category Buttons */
+        .categories {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .category-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 22px 20px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 70px;
+        }
+
+        .category-btn:hover {
+            background: rgba(126, 28, 47, 0.3);
+            border-color: rgba(126, 28, 47, 0.4);
+            transform: translateX(8px);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(126, 28, 47, 0.4);
+            transform: translateX(8px);
+        }
+
+        /* ========== MAIN PRODUCTS AREA ========== */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .products-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .category-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .products-count {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        /* Cart Icon */
+        .cart-icon-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-icon-btn {
+            background: rgba(126, 28, 47, 0.3);
+            border: 2px solid rgba(126, 28, 47, 0.5);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cart-icon-btn:hover {
+            background: rgba(126, 28, 47, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(126, 28, 47, 0.4);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--accent);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 0 25px 25px;
+            overflow-y: auto;
+            height: calc(100% - 140px);
+        }
+
+        /* Product Card */
+        .product-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 420px;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            border-color: var(--primary);
+        }
+
+        .product-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .stock-badge {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .stock-out {
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+        }
+
+        .stock-low {
+            background: rgba(255, 152, 0, 0.9);
+            color: black;
+        }
+
+        .stock-available {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+        }
+
+        .product-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.4;
+            height: 50px;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: var(--transition);
+            height: 60px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(126, 28, 47, 0.4);
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #cccccc;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Cart Modal */
+        .cart-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: none;
+        }
+
+        .cart-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            z-index: 1001;
+            display: none;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-left: 5px solid var(--primary);
+            max-width: 400px;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(126, 28, 47, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 90px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .fullscreen-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* Scrollbar Styling */
+        .categories::-webkit-scrollbar,
+        .products-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .categories::-webkit-scrollbar-track,
+        .products-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .categories::-webkit-scrollbar-thumb,
+        .products-grid::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1600px) {
+            .kiosk-container {
+                grid-template-columns: 250px 1fr;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            }
+        }
+
+        @media (max-width: 1366px) {
+            .kiosk-container {
+                grid-template-columns: 230px 1fr;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" id="fullscreenBtn">
+        <i class="bi bi-arrows-fullscreen"></i>
+    </button>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main Kiosk Interface -->
+    <div class="kiosk-container">
+        <!-- Left Sidebar - Categories -->
+        <div class="sidebar glass-panel">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="bi bi-cup-straw-fill logo-icon"></i>
+                    <span>WineX Kiosk</span>
+                </div>
+            </div>
+            
+            <div class="categories">
+                <button class="category-btn active" data-category="all">
+                    <i class="bi bi-grid-fill"></i>
+                    All Products
+                </button>
+                
+                {% for value, label in product_categories %}
+                <button class="category-btn" data-category="{{ value }}">
+                    <i class="bi 
+                        {% if value == 'whisky' %}bi-cup-straw 
+                        {% elif value == 'vodka' %}bi-droplet 
+                        {% elif value == 'beer' %}bi-cup 
+                        {% elif value == 'wine' %}bi-graph-up 
+                        {% elif value == 'rum' %}bi-water 
+                        {% elif value == 'gin' %}bi-flower1 
+                        {% elif value == 'tequila' %}bi-sun 
+                        {% else %}bi-tag{% endif %}">
+                    </i>
+                    {{ label }}
+                </button>
+                {% endfor %}
+                
+                <!-- Offers Section -->
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="color: rgba(255, 255, 255, 0.7); font-weight: 600; font-size: 14px; text-align: center; margin-bottom: 15px;">
+                        SPECIAL OFFERS
+                    </h4>
+                    
+                    <button class="category-btn" data-category="offer">
+                        <i class="bi bi-lightning-fill" style="color: var(--warning);"></i>
+                        Today's Offers
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Products Area -->
+        <div class="main-content glass-panel">
+            <div class="products-header">
+                <div class="header-left">
+                    <div class="category-title">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                        <span id="currentCategory">All Products</span>
+                    </div>
+                    <div class="products-count" id="productsCount">
+                        {{ products.count }} products available
+                    </div>
+                </div>
+                
+                <!-- Cart Icon -->
+                <div class="cart-icon-container">
+                    <div class="cart-icon-btn" id="cartIconBtn">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                {% for product in products %}
+                <div class="product-card" data-category="{{ product.category }}" data-id="{{ product.id }}">
+                    <div class="product-image">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                        <img src="https://via.placeholder.com/400x300/2c3e50/ffffff?text=No+Image" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="product-badge">
+                            {{ product.get_category_display }}
+                        </div>
+                        
+                        {% if product.stock == 0 %}
+                        <div class="stock-badge stock-out">Out of Stock</div>
+                        {% elif product.stock < 10 %}
+                        <div class="stock-badge stock-low">Low Stock</div>
+                        {% else %}
+                        <div class="stock-badge stock-available">In Stock</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-content">
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <div class="product-price">
+                            <i class="bi bi-currency-rupee"></i>{{ product.price }}
+                        </div>
+                        <p class="product-description">
+                            {{ product.description|truncatechars:100 }}
+                        </p>
+                        
+                        {% if product.stock > 0 %}
+                        <button class="add-to-cart-btn" data-product-id="{{ product.id }}" 
+                                data-product-name="{{ product.name }}"
+                                data-product-price="{{ product.price }}"
+                                data-product-image="{% if product.image %}{{ product.image.url }}{% else %}https://via.placeholder.com/400x300/2c3e50/ffffff?text=No+Image{% endif %}">
+                            <i class="bi bi-cart-plus"></i>
+                            Add to Cart
+                        </button>
+                        {% else %}
+                        <button class="add-to-cart-btn" disabled>
+                            <i class="bi bi-x-circle"></i>
+                            Out of Stock
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Offers -->
+                {% if current_offers %}
+                {% for offer in current_offers %}
+                <div class="product-card" data-category="offer" data-offer-id="{{ offer.id }}">
+                    <div class="product-image">
+                        {% if offer.image %}
+                        <img src="{{ offer.image.url }}" alt="{{ offer.title }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/400x300/9d4354/ffffff?text=Special+Offer" alt="{{ offer.title }}">
+                        {% endif %}
+                        <div class="product-badge" style="background: var(--accent);">
+                            {{ offer.get_offer_type_display }}
+                        </div>
+                        
+                        {% if offer.is_valid and offer.has_sufficient_stock %}
+                        <div class="stock-badge stock-available">Available</div>
+                        {% else %}
+                        <div class="stock-badge stock-out">
+                            {% if not offer.is_valid %}Expired{% else %}Out of Stock{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-content">
+                        <h3 class="product-title">{{ offer.title }}</h3>
+                        
+                        <div class="product-price">
+                            {% if offer.discount_percentage %}
+                            <div style="font-size: 14px; color: var(--success);">
+                                <i class="bi bi-percent"></i> Save {{ offer.discount_percentage }}%
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="text-decoration: line-through; color: #666; font-size: 16px;">
+                                    ₹{{ offer.total_original_price|floatformat:2 }}
+                                </span>
+                                <span>₹{{ offer.total_discounted_price|floatformat:2 }}</span>
+                            </div>
+                            {% else %}
+                            <i class="bi bi-currency-rupee"></i>{{ offer.total_original_price|floatformat:2 }}
+                            {% endif %}
+                        </div>
+                        
+                        <p class="product-description">{{ offer.description|truncatechars:100 }}</p>
+                        
+                        {% if offer.is_valid and offer.has_sufficient_stock %}
+                        <button class="add-to-cart-btn" data-offer-id="{{ offer.id }}"
+                                data-product-name="{{ offer.title }}"
+                                data-product-price="{{ offer.total_discounted_price }}"
+                                data-product-image="{% if offer.image %}{{ offer.image.url }}{% else %}https://via.placeholder.com/400x300/9d4354/ffffff?text=Special+Offer{% endif %}">
+                            <i class="bi bi-cart-plus"></i>
+                            Add Offer to Cart
+                        </button>
+                        {% else %}
+                        <button class="add-to-cart-btn" disabled>
+                            {% if not offer.is_valid %}Offer Expired{% else %}Out of Stock{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal-overlay" id="cartModalOverlay"></div>
+    <div class="cart-modal" id="cartModal">
+        <div id="cartModalContent"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+
+    <script>
+// =========================
+// UTILITY FUNCTIONS
+// =========================
+
+// CSRF Token functions
+function getCSRFToken() {
+    // Try to get from form input first
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput && csrfInput.value) {
+        return csrfInput.value;
+    }
+    
+    // Try to get from meta tag
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta && csrfMeta.content) {
+        return csrfMeta.content;
+    }
+    
+    // Fallback to cookie
+    return getCookie('csrftoken');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Loading functions
+function showLoading() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+// Toast notification
+function showToast(message, type = 'info', title = null) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    
+    let icon = 'info-circle';
+    let color = '#2196f3';
+    
+    if (type === 'success') {
+        icon = 'check-circle';
+        color = '#4caf50';
+    } else if (type === 'error') {
+        icon = 'exclamation-circle';
+        color = '#f44336';
+    } else if (type === 'warning') {
+        icon = 'exclamation-triangle';
+        color = '#ff9800';
+    }
+    
+    toast.innerHTML = `
+        <i class="bi bi-${icon}" style="color: ${color}; font-size: 24px;"></i>
+        <div style="flex: 1;">
+            <div style="font-weight: 700; color: #333; margin-bottom: 5px;">
+                ${title || type.charAt(0).toUpperCase() + type.slice(1)}
+            </div>
+            <div style="color: #666; font-size: 14px;">
+                ${message}
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+// Update cart badge
+function updateCartBadge(count) {
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        badge.textContent = count;
+        
+        // Animation
+        badge.style.transform = 'scale(1.5)';
+        setTimeout(() => {
+            badge.style.transform = 'scale(1)';
+        }, 300);
+    }
+}
+
+// =========================
+// CART FUNCTIONS
+// =========================
+
+async function addToCart(itemId, type = 'product') {
+    try {
+        console.log(`DEBUG: Adding ${type} with ID: ${itemId}`);
+        showLoading();
+        
+        let url;
+        if (type === 'product') {
+            url = `/shop/cart/add/${itemId}/`;
+        } else if (type === 'offer') {
+            url = `/add-offer-to-cart/${itemId}/`;
+        }
+        
+        const csrfToken = getCSRFToken();
+        console.log(`DEBUG: Calling URL: ${url}`);
+        console.log(`DEBUG: CSRF Token present: ${!!csrfToken}`);
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        });
+        
+        console.log(`DEBUG: Response status: ${response.status}`);
+        
+        if (response.ok) {
+            const responseText = await response.text();
+            console.log(`DEBUG: Response text: ${responseText.substring(0, 200)}...`);
+            
+            try {
+                const data = JSON.parse(responseText);
+                console.log(`DEBUG: Parsed JSON:`, data);
+                
+                if (data.success) {
+                    updateCartBadge(data.cart_count || 1);
+                    showToast('Item added to cart!', 'success');
+                    return true;
+                } else {
+                    showToast(data.message || 'Failed to add item', 'error');
+                }
+            } catch (e) {
+                console.log(`DEBUG: Not JSON, might be HTML redirect - ${e.message}`);
+                // If it's HTML (redirect), reload the page
+                location.reload();
+                return true;
+            }
+        } else {
+            const errorText = await response.text();
+            console.log(`DEBUG: Error response: ${errorText.substring(0, 200)}...`);
+            showToast('Server error. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        hideLoading();
+    }
+    return false;
+}
+
+// Simple form approach as fallback
+function simpleAddToCart(itemId, type = 'product') {
+    const csrfToken = getCSRFToken();
+    if (!csrfToken) {
+        showToast('CSRF token missing. Please refresh the page.', 'error');
+        return;
+    }
+    
+    // Create a hidden form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+    
+    // Set the correct action URL
+    if (type === 'product') {
+        form.action = `/shop/cart/add/${itemId}/`;
+    } else if (type === 'offer') {
+        form.action = `/add-offer-to-cart/${itemId}/`;
+    }
+    
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Submit the form
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// =========================
+// EVENT LISTENERS
+// =========================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DEBUG: DOM loaded, initializing...');
+    
+    // Ensure CSRF token is available
+    const csrfToken = getCSRFToken();
+    console.log('DEBUG: CSRF Token available:', !!csrfToken);
+    
+    // Fullscreen button
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                this.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
+            } else {
+                document.exitFullscreen();
+                this.innerHTML = '<i class="bi bi-arrows-fullscreen"></i>';
+            }
+        });
+    }
+    
+    // Cart icon click
+    const cartIconBtn = document.getElementById('cartIconBtn');
+    if (cartIconBtn) {
+        cartIconBtn.addEventListener('click', function() {
+            // Redirect to cart page
+            window.location.href = '/shop/cart/';
+        });
+    }
+    
+    // Category filtering
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            categoryBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const category = this.getAttribute('data-category');
+            const productCards = document.querySelectorAll('.product-card');
+            let visibleCount = 0;
+            
+            productCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (category === 'all' || cardCategory === category) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('currentCategory').textContent = 
+                this.querySelector('i').nextSibling.textContent.trim();
+            document.getElementById('productsCount').textContent = 
+                `${visibleCount} products available`;
+        });
+    });
+    
+    // Add to cart buttons - PRIMARY APPROACH
+    document.querySelectorAll('.add-to-cart-btn:not(:disabled)').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('DEBUG: Add to cart button clicked');
+            
+            const productId = this.getAttribute('data-product-id');
+            const offerId = this.getAttribute('data-offer-id');
+            
+            // Store original button state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-hourglass"></i> Adding...';
+            this.disabled = true;
+            
+            try {
+                if (productId) {
+                    console.log(`DEBUG: Adding product ID: ${productId}`);
+                    const success = await addToCart(productId, 'product');
+                    
+                    if (success) {
+                        // Visual feedback
+                        this.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-check2"></i> Added!';
+                        }, 300);
+                        
+                        // Reset button after 1 second
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.background = '';
+                            this.disabled = false;
+                        }, 1000);
+                    } else {
+                        // If failed, try the simple form approach
+                        console.log('DEBUG: AJAX failed, trying form submission...');
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        simpleAddToCart(productId, 'product');
+                    }
+                } else if (offerId) {
+                    console.log(`DEBUG: Adding offer ID: ${offerId}`);
+                    const success = await addToCart(offerId, 'offer');
+                    
+                    if (success) {
+                        this.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-check2"></i> Added!';
+                        }, 300);
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.background = '';
+                            this.disabled = false;
+                        }, 1000);
+                    } else {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        simpleAddToCart(offerId, 'offer');
+                    }
+                }
+            } catch (error) {
+                console.error('Error in button click handler:', error);
+                this.innerHTML = originalText;
+                this.disabled = false;
+                showToast('Error adding item to cart', 'error');
+            }
+        });
+    });
+    
+    // Welcome message
+    setTimeout(() => {
+        showToast('Welcome to WineX Kiosk! Browse and add items to your cart.', 'info', 'Welcome');
+    }, 1000);
+    
+    // Debug helper
+    console.log('DEBUG: Initialization complete');
+    console.log(`DEBUG: Found ${document.querySelectorAll('.add-to-cart-btn:not(:disabled)').length} add to cart buttons`);
+});
+</script>
+
+</body>
+</html>

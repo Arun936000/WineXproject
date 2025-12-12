@@ -1,0 +1,1349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Wine X</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --wine-primary: #8b0000;
+            --wine-secondary: #660000;
+            --wine-light: #b22222;
+            --gold-accent: #ffd700;
+            --cream-bg: #fffaf0;
+            --dark-bg: #1a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --success-green: #28a745;
+            --error-red: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HD Background Carousel */
+        .background-carousel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        /* Overlay gradient */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(26, 10, 10, 0.7) 0%, 
+                rgba(26, 10, 10, 0.8) 50%, 
+                rgba(26, 10, 10, 0.9) 100%);
+        }
+
+        /* Toast Notification */
+        .toast-container-custom {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 18px 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            animation: slideInRight 0.5s ease-out;
+            border-left: 5px solid #dc3545;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        .toast-custom.success {
+            border-left-color: #28a745;
+        }
+
+        .toast-custom.warning {
+            border-left-color: #ffc107;
+        }
+
+        .toast-custom.info {
+            border-left-color: #17a2b8;
+        }
+
+        .toast-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .toast-custom.error .toast-icon {
+            color: #dc3545;
+        }
+
+        .toast-custom.success .toast-icon {
+            color: #28a745;
+        }
+
+        .toast-custom.warning .toast-icon {
+            color: #ffc107;
+        }
+
+        .toast-custom.info .toast-icon {
+            color: #17a2b8;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 17px;
+        }
+
+        .toast-message {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toast-close:hover {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-custom.hiding {
+            animation: slideOutRight 0.5s ease-in forwards;
+        }
+
+        /* HORIZONTAL Signup Container - COMPACT VERSION */
+        .signup-horizontal-container {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            height: 600px; /* Slightly increased */
+            z-index: 10;
+            animation: slideIn 0.8s ease-out;
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Left Side - Brand Section - COMPACT */
+        .signup-brand-section {
+            flex: 1;
+            background: linear-gradient(135deg, var(--wine-primary), var(--wine-secondary));
+            border-radius: 20px 0 0 20px;
+            padding: 45px 40px; /* Increased slightly */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-brand-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+        }
+
+        .signup-brand-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .signup-brand-logo {
+            font-family: 'Georgia', serif;
+            font-size: 45px; /* Increased */
+            font-weight: bold;
+            margin-bottom: 15px; /* Increased */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .signup-brand-tagline {
+            font-size: 18px; /* Increased */
+            opacity: 0.9;
+            margin-bottom: 28px; /* Increased */
+            line-height: 1.5;
+        }
+
+        .signup-brand-features {
+            list-style: none;
+            margin-top: 28px; /* Increased */
+        }
+
+        .signup-brand-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px; /* Increased */
+            font-size: 16px; /* Increased */
+        }
+
+        .signup-brand-features li i {
+            margin-right: 12px; /* Increased */
+            color: var(--gold-accent);
+            font-size: 18px; /* Increased */
+        }
+
+        /* Right Side - Signup Form - FIXED LAYOUT */
+        .signup-form-section {
+            flex: 1.4;
+            background: var(--card-bg);
+            border-radius: 0 20px 20px 0;
+            padding: 45px 40px; /* Increased slightly */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            max-height: 600px; /* Match container height */
+        }
+
+        /* Make form scrollable but all fields visible without excessive scrolling */
+        .signup-form-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .signup-form-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .signup-form-section::-webkit-scrollbar-thumb {
+            background: var(--wine-primary);
+            border-radius: 4px;
+        }
+
+        /* NEW: Fixed header that stays on top */
+        .signup-form-header {
+            position: sticky;
+            top: -10;
+            background: var(--card-bg);
+            z-index: 10;
+            padding-bottom: 0px;
+            margin-bottom: 18px; /* Increased */
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .signup-title {
+            font-size: 30px; /* Increased */
+            color: var(--wine-primary);
+            margin-bottom: 10px; /* Increased */
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .signup-subtitle {
+            color: #666;
+            font-size: 16px; /* Increased */
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        /* Form Layout - COMPACT Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px; /* Increased */
+            margin-bottom: 18px; /* Increased */
+        }
+
+        .form-group-grid {
+            margin-bottom: 0;
+        }
+
+        .form-full-width {
+            grid-column: span 2;
+        }
+
+        .form-label-grid {
+            display: block;
+            margin-bottom: 8px; /* Increased */
+            color: #333;
+            font-weight: 600;
+            font-size: 14px; /* Increased */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-with-icon-grid {
+            position: relative;
+        }
+
+        .input-icon-grid {
+            position: absolute;
+            left: 16px; /* Increased */
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--wine-primary);
+            font-size: 18px; /* Increased */
+            z-index: 2;
+        }
+
+        .form-control-grid {
+            width: 100%;
+            padding: 14px 14px 14px 48px; /* Increased padding */
+            border: 2px solid #e0e0e0;
+            border-radius: 10px; /* Increased */
+            font-size: 16px; /* Increased */
+            color: #333;
+            background: white;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            height: 50px; /* Increased height */
+        }
+
+        .form-control-grid:focus {
+            outline: none;
+            border-color: var(--wine-primary);
+            box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1); /* Increased */
+        }
+
+        .form-control-grid::placeholder {
+            color: #999;
+            font-weight: 400;
+            font-size: 15px; /* Increased */
+        }
+
+        /* Password Strength Indicator - COMPACT */
+        .password-strength-grid {
+            margin-top: 10px; /* Increased */
+        }
+
+        .strength-bar-grid {
+            height: 4px; /* Increased */
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 6px; /* Increased */
+        }
+
+        .strength-fill-grid {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-text-grid {
+            font-size: 13px; /* Increased */
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Password Toggle - COMPACT */
+        .password-toggle-btn-grid {
+            position: absolute;
+            right: 16px; /* Increased */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px; /* Increased */
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .password-toggle-btn-grid:hover {
+            color: var(--wine-primary);
+        }
+
+        /* Validation Messages - COMPACT */
+        .validation-text-grid {
+            font-size: 12px; /* Increased */
+            margin-top: 6px; /* Increased */
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Increased */
+            min-height: 18px;
+        }
+
+        .validation-text-grid.valid {
+            color: var(--success-green);
+            font-weight: 500;
+        }
+
+        .validation-text-grid.invalid {
+            color: var(--error-red);
+            font-weight: 500;
+        }
+
+        /* Terms & Conditions - COMPACT */
+        .terms-group-grid {
+            grid-column: span 2;
+            margin: 18px 0; /* Increased */
+            padding: 20px; /* Increased */
+            background: #f9f9f9;
+            border-radius: 10px; /* Increased */
+            border: 1px solid #e0e0e0;
+        }
+
+        .terms-checkbox-grid {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px; /* Increased */
+        }
+
+        .terms-checkbox-grid input[type="checkbox"] {
+            margin-top: 4px; /* Increased */
+            accent-color: var(--wine-primary);
+            width: 20px; /* Increased */
+            height: 20px; /* Increased */
+        }
+
+        .terms-label-grid {
+            color: #333;
+            font-size: 15px; /* Increased */
+            line-height: 1.5;
+        }
+
+        .terms-link-grid {
+            color: var(--wine-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px; /* Increased */
+        }
+
+        .terms-link-grid:hover {
+            text-decoration: underline;
+        }
+
+        /* Signup Button - COMPACT */
+        .btn-signup-grid {
+            grid-column: span 2;
+            width: 100%;
+            padding: 16px; /* Increased */
+            background: linear-gradient(135deg, var(--wine-primary), var(--wine-secondary));
+            border: none;
+            border-radius: 10px; /* Increased */
+            color: white;
+            font-size: 18px; /* Increased */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px; /* Increased */
+            box-shadow: 0 10px 20px rgba(139, 0, 0, 0.2); /* Increased */
+            margin-top: 10px; /* Increased */
+            height: 54px; /* Increased height */
+        }
+
+        .btn-signup-grid:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(139, 0, 0, 0.3); /* Increased */
+        }
+
+        .btn-signup-grid:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Divider - COMPACT */
+        .divider-grid {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            margin: 20px 0; /* Increased */
+            color: #999;
+        }
+
+        .divider-line-grid {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+        }
+
+        .divider-text-grid {
+            padding: 0 15px; /* Increased */
+            font-size: 15px; /* Increased */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Login Button - COMPACT */
+        .btn-login-grid {
+            grid-column: span 2;
+            width: 100%;
+            padding: 15px; /* Increased */
+            background: white;
+            border: 2px solid var(--wine-primary);
+            border-radius: 10px; /* Increased */
+            color: var(--wine-primary);
+            font-size: 16px; /* Increased */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Increased */
+            height: 52px; /* Increased height */
+            margin-bottom: 12px; /* Added */
+        }
+
+        .btn-login-grid:hover {
+            background: var(--wine-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Footer Links - COMPACT */
+        .signup-footer-grid {
+            grid-column: span 2;
+            text-align: center;
+            margin-top: 18px; /* Increased */
+            padding-top: 18px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-link-grid {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px; /* Increased */
+            margin: 0 10px; /* Increased */
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px; /* Increased */
+        }
+
+        .footer-link-grid:hover {
+            color: var(--wine-primary);
+        }
+
+        /* Back Home Button */
+        .back-home-grid {
+            position: absolute;
+            top: 25px; /* Adjusted */
+            left: 25px; /* Adjusted */
+            z-index: 20;
+            color: white;
+            text-decoration: none;
+            font-size: 16px; /* Increased */
+            display: inline-flex;
+            align-items: center;
+            gap: 10px; /* Increased */
+            padding: 12px 24px; /* Increased */
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px; /* Increased */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .back-home-grid:hover {
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--gold-accent);
+            transform: translateX(-5px);
+        }
+
+        /* NEW: Main content wrapper */
+        .signup-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Responsive for Compact Layout */
+        @media (max-width: 1200px) {
+            .signup-horizontal-container {
+                width: 95%;
+                height: 580px;
+            }
+            
+            .signup-brand-section,
+            .signup-form-section {
+                padding: 40px 35px;
+            }
+            
+            .toast-container-custom {
+                max-width: 350px;
+            }
+            
+            .toast-custom {
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .signup-horizontal-container {
+                flex-direction: column;
+                height: auto;
+                max-width: 600px;
+            }
+            
+            .signup-brand-section {
+                border-radius: 20px 20px 0 0;
+                padding: 40px;
+            }
+            
+            .signup-form-section {
+                border-radius: 0 0 20px 20px;
+                padding: 40px;
+                max-height: none;
+                overflow-y: visible;
+            }
+            
+            .signup-brand-logo {
+                font-size: 40px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-full-width {
+                grid-column: span 1;
+            }
+            
+            .terms-group-grid,
+            .btn-signup-grid,
+            .divider-grid,
+            .btn-login-grid {
+                grid-column: span 1;
+            }
+            
+            .toast-container-custom {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            .toast-custom {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .signup-horizontal-container {
+                width: 90%;
+                margin: 20px 0;
+            }
+            
+            .signup-brand-section,
+            .signup-form-section {
+                padding: 35px 30px;
+            }
+            
+            .back-home-grid {
+                top: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                font-size: 15px;
+            }
+            
+            .form-grid {
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .signup-horizontal-container {
+                width: 95%;
+            }
+            
+            .signup-brand-section,
+            .signup-form-section {
+                padding: 30px 25px;
+            }
+            
+            .signup-brand-logo {
+                font-size: 36px;
+            }
+            
+            .signup-title {
+                font-size: 28px;
+            }
+            
+            .signup-subtitle {
+                font-size: 15px;
+            }
+            
+            .terms-group-grid {
+                padding: 18px;
+            }
+            
+            .btn-signup-grid,
+            .btn-login-grid {
+                padding: 14px;
+                height: 50px;
+            }
+            
+            .form-control-grid {
+                padding: 12px 12px 12px 45px;
+                height: 48px;
+                font-size: 15px;
+            }
+            
+            .form-label-grid {
+                font-size: 13px;
+            }
+        }
+
+        /* Ensure everything fits properly on smaller heights */
+        @media (max-height: 700px) {
+            .signup-horizontal-container {
+                height: 560px;
+            }
+            
+            .signup-form-section {
+                max-height: 560px;
+            }
+            
+            .signup-form-header {
+                padding-bottom: 18px;
+                margin-bottom: 16px;
+            }
+            
+            .signup-title {
+                font-size: 28px;
+            }
+            
+            .form-grid {
+                gap: 15px;
+            }
+            
+            .terms-group-grid {
+                margin: 15px 0;
+                padding: 18px;
+            }
+            
+            .divider-grid {
+                margin: 18px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <!-- HD Background Carousel -->
+    <div class="background-carousel">
+        <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+        <div class="overlay"></div>
+    </div>
+
+    <!-- Back Home Button -->
+    <a href="{% url 'home' %}" class="back-home-grid">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+
+    <!-- HORIZONTAL Signup Container -->
+    <div class="signup-horizontal-container">
+        <!-- Left Side - Brand Section -->
+        <div class="signup-brand-section">
+            <div class="signup-brand-overlay"></div>
+            <div class="signup-brand-content">
+                <div class="signup-brand-logo">Wine X</div>
+                <p class="signup-brand-tagline">
+                    Join our exclusive wine community today. 
+                    Get access to premium wines, expert recommendations, 
+                    and members-only benefits.
+                </p>
+                
+                <ul class="signup-brand-features">
+                    <li>
+                        <i class="fas fa-star"></i>
+                        Get 10% off your first order
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast"></i>
+                        Free delivery on orders over $100
+                    </li>
+                    <li>
+                        <i class="fas fa-calendar-alt"></i>
+                        Invitations to exclusive tasting events
+                    </li>
+                    <li>
+                        <i class="fas fa-gift"></i>
+                        Birthday gifts and seasonal promotions
+                    </li>
+                    <li>
+                        <i class="fas fa-headset"></i>
+                        24/7 customer support
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side - Signup Form -->
+        <div class="signup-form-section">
+            <div class="signup-content-wrapper">
+                <!-- Fixed Header -->
+                <div class="signup-form-header">
+                    <h2 class="signup-title">Join Wine X</h2>
+                    <p class="signup-subtitle">Create your customer account</p>
+                </div>
+
+                <form method="POST" action="{% url 'customer_signup' %}" id="signupFormGrid">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <!-- First Name -->
+                        <div class="form-group-grid">
+                            <label class="form-label-grid">First Name</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-user"></i>
+                                <input type="text" 
+                                       class="form-control-grid" 
+                                       id="first_name_grid" 
+                                       name="first_name" 
+                                       placeholder="First name" 
+                                       required
+                                       value="{{ request.POST.first_name|default:'' }}">
+                            </div>
+                            <div class="validation-text-grid" id="firstNameValidation"></div>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group-grid">
+                            <label class="form-label-grid">Last Name</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-user"></i>
+                                <input type="text" 
+                                       class="form-control-grid" 
+                                       id="last_name_grid" 
+                                       name="last_name" 
+                                       placeholder="Last name" 
+                                       required
+                                       value="{{ request.POST.last_name|default:'' }}">
+                            </div>
+                            <div class="validation-text-grid" id="lastNameValidation"></div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="form-group-grid form-full-width">
+                            <label class="form-label-grid">Username</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-at"></i>
+                                <input type="text" 
+                                       class="form-control-grid" 
+                                       id="username_grid" 
+                                       name="username" 
+                                       placeholder="Choose a username" 
+                                       required
+                                       value="{{ request.POST.username|default:'' }}"
+                                       oninput="validateUsernameGrid()">
+                            </div>
+                            <div class="validation-text-grid" id="usernameValidationGrid"></div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group-grid form-full-width">
+                            <label class="form-label-grid">Email Address</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-envelope"></i>
+                                <input type="email" 
+                                       class="form-control-grid" 
+                                       id="email_grid" 
+                                       name="email" 
+                                       placeholder="Enter your email" 
+                                       required
+                                       value="{{ request.POST.email|default:'' }}"
+                                       oninput="validateEmailGrid()">
+                            </div>
+                            <div class="validation-text-grid" id="emailValidationGrid"></div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group-grid">
+                            <label class="form-label-grid">Password</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-lock"></i>
+                                <input type="password" 
+                                       class="form-control-grid" 
+                                       id="password_grid" 
+                                       name="password" 
+                                       placeholder="Create password" 
+                                       required
+                                       oninput="validatePasswordGrid()">
+                                <button type="button" class="password-toggle-btn-grid" onclick="togglePasswordGrid('password_grid')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength-grid">
+                                <div class="strength-bar-grid">
+                                    <div class="strength-fill-grid" id="strengthFillGrid"></div>
+                                </div>
+                                <div class="strength-text-grid" id="strengthTextGrid">Password strength: Very Weak</div>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group-grid">
+                            <label class="form-label-grid">Confirm Password</label>
+                            <div class="input-with-icon-grid">
+                                <i class="input-icon-grid fas fa-lock"></i>
+                                <input type="password" 
+                                       class="form-control-grid" 
+                                       id="confirm_password_grid" 
+                                       name="confirm_password" 
+                                       placeholder="Confirm password" 
+                                       required
+                                       oninput="validateConfirmPasswordGrid()">
+                                <button type="button" class="password-toggle-btn-grid" onclick="togglePasswordGrid('confirm_password_grid')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="validation-text-grid" id="confirmPasswordValidationGrid"></div>
+                        </div>
+
+                        <!-- Terms & Conditions -->
+                        <div class="terms-group-grid">
+                            <div class="terms-checkbox-grid">
+                                <input type="checkbox" id="terms_grid" name="terms" required>
+                                <label for="terms_grid" class="terms-label-grid">
+                                    I agree to the <a href="#" class="terms-link-grid">Terms & Conditions</a> 
+                                    and <a href="#" class="terms-link-grid">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Signup Button -->
+                        <button type="submit" class="btn-signup-grid" id="submitBtnGrid">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </button>
+
+                        <!-- Divider -->
+                        <div class="divider-grid">
+                            <div class="divider-line-grid"></div>
+                            <div class="divider-text-grid">Already have an account?</div>
+                            <div class="divider-line-grid"></div>
+                        </div>
+
+                        <!-- Login Button -->
+                        <a href="{% url 'customer_login' %}" class="btn-login-grid">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In Instead
+                        </a>
+
+                        <!-- Footer Links -->
+                        <div class="signup-footer-grid">
+                            <a href="{% url 'admin_login' %}" class="footer-link-grid">
+                                <i class="fas fa-crown"></i>
+                                Admin Login
+                            </a>
+                            <a href="#" class="footer-link-grid">
+                                <i class="fas fa-question-circle"></i>
+                                Need Help?
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Background Carousel
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        
+        function changeSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        
+        setInterval(changeSlide, 5000);
+        
+        // Password Toggle
+        function togglePasswordGrid(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleBtn = passwordInput.parentElement.querySelector('.password-toggle-btn-grid i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.classList.remove('fa-eye');
+                toggleBtn.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.classList.remove('fa-eye-slash');
+                toggleBtn.classList.add('fa-eye');
+            }
+        }
+        
+        // Toast Notification Functions
+        function showToast(message, type = 'info', title = null) {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-custom ${type}`;
+            
+            // Set icon based on type
+            let icon = 'info-circle';
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    title = title || 'Success';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    title = title || 'Error';
+                    break;
+                case 'warning':
+                    icon = 'exclamation-triangle';
+                    title = title || 'Warning';
+                    break;
+                default:
+                    icon = 'info-circle';
+                    title = title || 'Info';
+            }
+            
+            toast.innerHTML = `
+                <i class="toast-icon fas fa-${icon}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="removeToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    removeToast(toast.querySelector('.toast-close'));
+                }
+            }, 5000);
+            
+            return toast;
+        }
+        
+        function removeToast(closeButton) {
+            const toast = closeButton.closest('.toast-custom');
+            if (toast) {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 500);
+            }
+        }
+        
+        // Display Django messages as toasts
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    showToast('{{ message|escapejs }}', 'success', 'Success');
+                {% elif message.tags == 'error' %}
+                    showToast('{{ message|escapejs }}', 'error', 'Error');
+                {% elif message.tags == 'warning' %}
+                    showToast('{{ message|escapejs }}', 'warning', 'Warning');
+                {% else %}
+                    showToast('{{ message|escapejs }}', 'info', 'Info');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        
+        // Validation Functions
+        function validateUsernameGrid() {
+            const username = document.getElementById('username_grid').value;
+            const validation = document.getElementById('usernameValidationGrid');
+            
+            if (username.length < 4) {
+                validation.textContent = '✗ Username must be at least 4 characters';
+                validation.className = 'validation-text-grid invalid';
+                return false;
+            } else if (!/^[a-zA-Z0-9@.+\-_]+$/.test(username)) {
+                validation.textContent = '✗ Only letters, numbers and @/./+/-/_ allowed';
+                validation.className = 'validation-text-grid invalid';
+                return false;
+            } else {
+                validation.textContent = '✓ Username is available';
+                validation.className = 'validation-text-grid valid';
+                return true;
+            }
+        }
+        
+        function validateEmailGrid() {
+            const email = document.getElementById('email_grid').value;
+            const validation = document.getElementById('emailValidationGrid');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(email)) {
+                validation.textContent = '✓ Valid email address';
+                validation.className = 'validation-text-grid valid';
+                return true;
+            } else {
+                validation.textContent = '✗ Please enter a valid email';
+                validation.className = 'validation-text-grid invalid';
+                return false;
+            }
+        }
+        
+        function validatePasswordGrid() {
+            const password = document.getElementById('password_grid').value;
+            const strengthFill = document.getElementById('strengthFillGrid');
+            const strengthText = document.getElementById('strengthTextGrid');
+            
+            let strength = 0;
+            let text = '';
+            let color = '';
+            
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            strengthFill.style.width = strength + '%';
+            
+            if (strength < 25) {
+                color = '#dc3545';
+                text = 'Very Weak';
+            } else if (strength < 50) {
+                color = '#fd7e14';
+                text = 'Weak';
+            } else if (strength < 75) {
+                color = '#ffc107';
+                text = 'Good';
+            } else {
+                color = '#28a745';
+                text = 'Strong';
+            }
+            
+            strengthFill.style.background = color;
+            strengthText.textContent = `Password strength: ${text}`;
+            strengthText.style.color = color;
+            
+            // Validate confirm password if it has value
+            const confirmPassword = document.getElementById('confirm_password_grid').value;
+            if (confirmPassword.length > 0) {
+                validateConfirmPasswordGrid();
+            }
+            
+            return strength >= 50; // At least "Good" strength
+        }
+        
+        function validateConfirmPasswordGrid() {
+            const password = document.getElementById('password_grid').value;
+            const confirmPassword = document.getElementById('confirm_password_grid').value;
+            const validation = document.getElementById('confirmPasswordValidationGrid');
+            
+            if (confirmPassword.length === 0) {
+                validation.textContent = '';
+                validation.className = 'validation-text-grid';
+                return false;
+            }
+            
+            if (password === confirmPassword) {
+                validation.textContent = '✓ Passwords match';
+                validation.className = 'validation-text-grid valid';
+                return true;
+            } else {
+                validation.textContent = '✗ Passwords do not match';
+                validation.className = 'validation-text-grid invalid';
+                return false;
+            }
+        }
+        
+        // Validate first and last names
+        function validateNames() {
+            const firstName = document.getElementById('first_name_grid').value;
+            const lastName = document.getElementById('last_name_grid').value;
+            const firstNameValidation = document.getElementById('firstNameValidation');
+            const lastNameValidation = document.getElementById('lastNameValidation');
+            
+            let allValid = true;
+            
+            if (firstName.length < 2) {
+                firstNameValidation.textContent = '✗ First name too short';
+                firstNameValidation.className = 'validation-text-grid invalid';
+                allValid = false;
+            } else {
+                firstNameValidation.textContent = '✓';
+                firstNameValidation.className = 'validation-text-grid valid';
+            }
+            
+            if (lastName.length < 2) {
+                lastNameValidation.textContent = '✗ Last name too short';
+                lastNameValidation.className = 'validation-text-grid invalid';
+                allValid = false;
+            } else {
+                lastNameValidation.textContent = '✓';
+                lastNameValidation.className = 'validation-text-grid valid';
+            }
+            
+            return allValid;
+        }
+        
+        // Form Submission Validation
+        document.getElementById('signupFormGrid').addEventListener('submit', function(e) {
+            const isNamesValid = validateNames();
+            const isUsernameValid = validateUsernameGrid();
+            const isEmailValid = validateEmailGrid();
+            const isPasswordValid = validatePasswordGrid();
+            const isConfirmPasswordValid = validateConfirmPasswordGrid();
+            const termsAccepted = document.getElementById('terms_grid').checked;
+            
+            if (!isNamesValid || !isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !termsAccepted) {
+                e.preventDefault();
+                
+                // Clear previous error toasts
+                const toastContainer = document.getElementById('toastContainer');
+                const errorToasts = toastContainer.querySelectorAll('.toast-custom.error, .toast-custom.warning');
+                errorToasts.forEach(toast => {
+                    if (toast.parentNode) {
+                        removeToast(toast.querySelector('.toast-close'));
+                    }
+                });
+                
+                let errorMessages = [];
+                
+                if (!isNamesValid) errorMessages.push('Please enter valid first and last names (at least 2 characters each)');
+                if (!isUsernameValid) errorMessages.push('Username must be at least 4 characters with valid characters only');
+                if (!isEmailValid) errorMessages.push('Please enter a valid email address');
+                if (!isPasswordValid) errorMessages.push('Password is too weak. Please use a stronger password');
+                if (!isConfirmPasswordValid) errorMessages.push('Passwords do not match');
+                if (!termsAccepted) errorMessages.push('Please accept the Terms & Conditions');
+                
+                // Show first error as toast
+                if (errorMessages.length > 0) {
+                    showToast(errorMessages[0], 'error', 'Validation Error');
+                }
+            }
+        });
+        
+        // Real-time validation
+        document.getElementById('first_name_grid').addEventListener('input', validateNames);
+        document.getElementById('last_name_grid').addEventListener('input', validateNames);
+        document.getElementById('username_grid').addEventListener('input', validateUsernameGrid);
+        document.getElementById('email_grid').addEventListener('input', validateEmailGrid);
+        document.getElementById('password_grid').addEventListener('input', validatePasswordGrid);
+        document.getElementById('confirm_password_grid').addEventListener('input', validateConfirmPasswordGrid);
+        
+        // Focus on first name field on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstNameField = document.getElementById('first_name_grid');
+            if (firstNameField && !firstNameField.value.trim()) {
+                firstNameField.focus();
+            }
+        });
+    </script>
+</body>
+</html>
